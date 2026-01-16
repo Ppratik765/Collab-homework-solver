@@ -8,6 +8,97 @@ import json
 import io
 import time
 
+# --- 1. VISUAL BRANDING & ANIMATED BACKGROUND (CSS) ---
+st.set_page_config(page_title="Automated intelligence", layout="centered", page_icon="📝")
+
+st.markdown("""
+<style>
+    /* 1. Hide Footer */
+    footer {visibility: hidden;}
+    
+    /* 2. MAKE HEADER TRANSPARENT (Fixes the "stuck arrow" look) */
+    header[data-testid="stHeader"] {
+        background: transparent !important;
+        z-index: 1000 !important;
+    }
+
+    /* 3. ENTRANCE ANIMATION (Float Up) */
+    @keyframes floatUp {
+        0% { opacity: 0; transform: translateY(50px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Apply animation to main content and sidebar */
+    .block-container, section[data-testid="stSidebar"] {
+        animation: floatUp 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    /* 4. MAIN CONTENT STYLING */
+    .block-container {
+        padding-top: 6rem !important;
+        z-index: 10;
+        background: rgba(0, 0, 0, 0.6); 
+        border-radius: 15px;
+        padding-bottom: 2rem;
+        padding-left: 2rem;
+        padding-right: 2rem;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 2rem;
+        /* Ensure it centers automatically when sidebar closes */
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    /* 5. SIDEBAR STYLING */
+    section[data-testid="stSidebar"] {
+        /* Removed fixed width to allow proper collapsing/centering */
+        z-index: 99999 !important;
+        background-color: rgba(15, 15, 20, 0.95);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* 6. Background Color */
+    .stApp {
+        background: linear-gradient(to bottom, #0b1021 0%, #1b2735 100%);
+    }
+    
+    /* 7. Lively Snowfall Animation */
+    .stApp::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(4px 4px at 100px 50px, #fff, transparent), 
+            radial-gradient(6px 6px at 200px 150px, #fff, transparent), 
+            radial-gradient(3px 3px at 300px 250px, #fff, transparent), 
+            radial-gradient(4px 4px at 400px 350px, #fff, transparent), 
+            radial-gradient(6px 6px at 500px 100px, #fff, transparent), 
+            radial-gradient(3px 3px at 50px 200px, #fff, transparent), 
+            radial-gradient(4px 4px at 150px 300px, #fff, transparent), 
+            radial-gradient(6px 6px at 250px 400px, #fff, transparent), 
+            radial-gradient(3px 3px at 350px 500px, #fff, transparent);
+        background-size: 550px 550px;
+        animation: snowfall 10s linear infinite;
+        pointer-events: none;
+        opacity: 0.6; 
+    }
+
+    @keyframes snowfall {
+        0% { background-position: 0 0; }
+        100% { background-position: 0 550px; }
+    }
+
+    /* 8. Typography */
+    h1, h2, h3 { color: #ffffff !important; text-shadow: 0 0 10px #00d2ff; }
+    p, label, .stMarkdown { color: #e0e0e0 !important; }
+</style>
+""", unsafe_allow_html=True)
+
 # --- HELPER FUNCTIONS ---
 
 def extract_text_from_file(uploaded_file):
@@ -32,34 +123,37 @@ def extract_text_from_file(uploaded_file):
         
     return text
 
-def generate_notebook_content(text_content, api_key, provider):
+def generate_notebook_content(text_content, api_key, provider, custom_instructions=""):
     """
     Sends text to the selected AI provider (Gemini or OpenAI)
     and requests a structured JSON response.
     """
     
-    # Common System Prompt for both AIs
-    system_prompt = """
+    # Common System Prompt
+    system_prompt = f"""
     You are an automated homework solver. 
     
     **Instructions:**
-    1. Analyze the text and identify if the questions are divided into parts or sections (e.g., "Part A", "Section 1").
+    1. Analyze the text and identify if the questions are divided into parts or sections.
     2. If no specific sections exist, group everything under a single section named "Questions".
     3. Extract the distinct questions for each section.
     4. Write working Python code to solve each question.
     5. Return the output strictly as a JSON list of Section objects.
+    
+    **USER CUSTOM INSTRUCTIONS:**
+    {custom_instructions}
 
     **JSON Schema:**
     [
-        {
+        {{
             "section_title": "Part A: Multiple Choice",
             "questions": [
-                {
+                {{
                     "question": "Text of Q1...",
                     "code": "print('Answer to Q1')"
-                }
+                }}
             ]
-        }
+        }}
     ]
     """
 
@@ -80,7 +174,7 @@ def generate_notebook_content(text_content, api_key, provider):
             client = OpenAI(api_key=api_key)
             
             response = client.chat.completions.create(
-                model="gpt-4o-mini", # Using 4o-mini for speed and cost efficiency
+                model="gpt-4o-mini", 
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": f"Here is the homework text:\n{text_content}"}
@@ -102,9 +196,8 @@ def create_ipynb(student_name, roll_no, structured_data):
 
     # Sections & Questions
     if structured_data:
-        # Handle cases where AI might wrap the list in a root key (common with OpenAI)
+        # Handle dict wrapping
         if isinstance(structured_data, dict):
-            # Try to find the list inside values
             for key, value in structured_data.items():
                 if isinstance(value, list):
                     structured_data = value
@@ -123,11 +216,26 @@ def create_ipynb(student_name, roll_no, structured_data):
                     nb.cells.append(nbf.v4.new_code_cell(code_text))
     return nb
 
-# --- STREAMLIT UI ---
+# --- MOCK DATA FOR DEMO MODE ---
+MOCK_TEXT = "Question 1: Calculate the force of gravity on a 10kg object on Earth. Question 2: Create a list of the first 5 prime numbers."
+MOCK_JSON = [
+    {
+        "section_title": "Physics & Math Demo",
+        "questions": [
+            {
+                "question": "Calculate the force of gravity on a 10kg object on Earth.",
+                "code": "mass = 10\ngravity = 9.8\nforce = mass * gravity\nprint(f'Force: {force} Newtons')"
+            },
+            {
+                "question": "Create a list of the first 5 prime numbers.",
+                "code": "primes = [2, 3, 5, 7, 11]\nprint(primes)"
+            }
+        ]
+    }
+]
 
-st.set_page_config(page_title="Colab Homework Solver", layout="centered")
-
-st.title("📄 Auto-Colab Solver")
+# --- UI START ---
+st.title("Automated intelligence")
 st.write("Upload a PDF or Word file, and I'll generate a solved Jupyter Notebook (.ipynb) for you.")
 
 # --- SIDEBAR CONFIGURATION ---
@@ -139,7 +247,7 @@ provider = st.sidebar.radio(
     ("Google Gemini", "OpenAI (ChatGPT)")
 )
 
-# 2. Dynamic Tooltip Instructions
+# Tooltips
 if provider == "Google Gemini":
     tooltip_text = """
     **How to get a Google Gemini API Key:**
@@ -159,17 +267,25 @@ else:
     5. Copy the key (you won't see it again!) and paste it here.
     """
 
-# 3. API Key Input with Tooltip
+# 2. API Key Input
 api_key = st.sidebar.text_input(
     f"Enter {provider} API Key", 
     type="password",
-    help=tooltip_text  # This creates the hoverable "i" / "?" icon
+    help=tooltip_text
 )
+
+# 3. NEW: Advanced Options (Custom Instructions)
+with st.sidebar.expander("🛠️ Advanced Options"):
+    custom_instructions = st.text_area(
+        "Additional AI Instructions:",
+        placeholder="E.g., 'Use only standard Python libraries', 'Add detailed comments', 'Solve using recursion'..."
+    )
 
 if not api_key:
     st.sidebar.warning(f"Please enter your {provider} API Key to proceed.")
 
-# --- MAIN APP INPUTS ---
+
+# --- MAIN INPUTS ---
 col1, col2 = st.columns(2)
 with col1:
     name = st.text_input("Student Name", placeholder="John Doe")
@@ -178,7 +294,49 @@ with col2:
 
 uploaded_file = st.file_uploader("Upload Homework", type=["pdf", "docx"])
 
-if st.button("Generate Notebook"):
+# --- ACTION BUTTONS ---
+# We use columns to place "Generate" and "Demo" side-by-side
+btn_col1, btn_col2 = st.columns([1, 1])
+
+with btn_col1:
+    generate_btn = st.button("🚀 Generate Notebook", use_container_width=True)
+with btn_col2:
+    demo_btn = st.button("⚡ Try Demo Mode", use_container_width=True)
+
+# Initialize variables
+structured_data = None
+notebook_data = None
+final_name = name if name else "Student"
+final_roll = roll_no if roll_no else "0000"
+
+# --- LOGIC FLOW ---
+
+if demo_btn:
+    # 4. DEMO MODE LOGIC
+    with st.status("⚡ Running Demo Mode...", expanded=True) as status:
+        st.write("📂 Loading mock homework file...")
+        time.sleep(1) # Fake loading time for effect
+        st.write("🧠 Simulating AI thinking...")
+        time.sleep(1)
+        
+        # Load Mock Data
+        structured_data = MOCK_JSON
+        
+        st.write("📝 Formatting .ipynb file...")
+        notebook_obj = create_ipynb("Demo User", "12345", structured_data)
+        
+        output_stream = io.StringIO()
+        nbf.write(notebook_obj, output_stream)
+        notebook_data = output_stream.getvalue().encode('utf-8')
+        
+        status.update(label="Demo Complete!", state="complete", expanded=False)
+        
+    st.success("✅ Demo Generated Successfully!")
+    final_name = "Demo_User"
+    final_roll = "12345"
+
+elif generate_btn:
+    # STANDARD MODE LOGIC
     if not api_key:
         st.error(f"Please enter your {provider} API Key in the sidebar.")
     elif not uploaded_file:
@@ -186,42 +344,69 @@ if st.button("Generate Notebook"):
     elif not name or not roll_no:
         st.warning("Please fill in Name and Roll Number.")
     else:
-        progress_text = "Starting operation..."
-        my_bar = st.progress(0, text=progress_text)
+        with st.status("Processing your request...", expanded=True) as status:
+            # Step 1: Parsing
+            st.write("🔍 Reading file content...")
+            raw_text = extract_text_from_file(uploaded_file)
+            
+            if not raw_text or len(raw_text) < 10:
+                status.update(label="Failed", state="error")
+                st.error("Could not extract text. The file might be empty or an image scan.")
+            else:
+                # Step 2: AI Generation
+                st.write(f"🧠 Sending questions to {provider}...")
+                
+                # Pass custom instructions here
+                structured_data = generate_notebook_content(raw_text, api_key, provider, custom_instructions)
+                
+                if structured_data:
+                    # Step 3: Building Notebook
+                    st.write("📝 Formatting .ipynb file...")
+                    notebook_obj = create_ipynb(name, roll_no, structured_data)
+                    
+                    output_stream = io.StringIO()
+                    nbf.write(notebook_obj, output_stream)
+                    notebook_data = output_stream.getvalue().encode('utf-8')
 
-        # Step 1: Parsing
-        my_bar.progress(25, text="Reading file content...")
-        raw_text = extract_text_from_file(uploaded_file)
+                    # Step 4: Complete
+                    status.update(label="Process Complete!", state="complete", expanded=False)
+                    st.success("✅ Notebook generated successfully!")
+                else:
+                    status.update(label="Failed", state="error")
+
+# --- POST-GENERATION UI (Preview & Download) ---
+
+if structured_data and notebook_data:
+    
+    # 2. LIVE PREVIEW (Expander)
+    with st.expander("👁️ Live Preview (Check results before downloading)"):
+        st.markdown("### Generated Questions & Solutions")
         
-        if not raw_text or len(raw_text) < 10:
-            my_bar.empty()
-            st.error("Could not extract text. The file might be empty or an image scan.")
-        else:
-            # Step 2: AI Generation
-            my_bar.progress(50, text=f"Sending questions to {provider}...")
-            
-            # Pass provider info to the function
-            structured_data = generate_notebook_content(raw_text, api_key, provider)
-            
-            if structured_data:
-                # Step 3: Building Notebook
-                my_bar.progress(90, text="Formatting .ipynb file...")
-                notebook_obj = create_ipynb(name, roll_no, structured_data)
-                
-                output_stream = io.StringIO()
-                nbf.write(notebook_obj, output_stream)
-                notebook_data = output_stream.getvalue().encode('utf-8')
+        # Handle list vs dict structure safely
+        data_to_show = structured_data
+        if isinstance(structured_data, dict):
+            for k, v in structured_data.items():
+                if isinstance(v, list):
+                    data_to_show = v
+                    break
+        
+        if isinstance(data_to_show, list):
+            for section in data_to_show:
+                st.markdown(f"#### {section.get('section_title', 'Section')}")
+                for q in section.get('questions', []):
+                    st.markdown(f"**Q:** {q.get('question')}")
+                    st.code(q.get('code'), language='python')
+                    st.markdown("---")
 
-                # Step 4: Complete
-                my_bar.progress(100, text="Complete!")
-                time.sleep(0.5)
-                my_bar.empty()
+    # WARNING & DOWNLOAD
+    st.warning("⚠️ **Note:** This code is AI-generated, AI can make mistakes. Please review before submitting.")
 
-                st.success(f"Notebook generated successfully using {provider}!")
-                
-                st.download_button(
-                    label="📥 Download .ipynb File",
-                    data=notebook_data,
-                    file_name=f"{roll_no}_{name}_Assignment.ipynb",
-                    mime="application/x-ipynb+json"
-                )
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        st.download_button(
+            label="📥 Download .ipynb File",
+            data=notebook_data,
+            file_name=f"{final_roll}{final_name} Assignment.ipynb",
+            mime="application/x-ipynb+json",
+            use_container_width=True
+        )
