@@ -7,7 +7,7 @@ import nbformat as nbf
 # and moved inside the functions below to make the app load instantly.
 
 # --- 1. VISUAL BRANDING & ANIMATED BACKGROUND (CSS) ---
-st.set_page_config(page_title="Automated intelligence", layout="centered", page_icon="📝")
+st.set_page_config(page_title="Automated intelligence", layout="centered", page_icon=programmer.png)
 
 st.markdown("""
 <style>
@@ -110,13 +110,12 @@ st.markdown("""
     }
     
     /* OPTIONAL: Hides the "Hosted with Streamlit" footer if you want */
-    footer {visibility: hidden !important;}
+    /* footer {visibility: hidden !important;} */
     
     /* CRITICAL: Ensure the Sidebar Toggle (Top Left) stays visible */
     [data-testid="stSidebarCollapsedControl"] {
         visibility: visible !important;
     }
-    
     
 </style>
 """, unsafe_allow_html=True)
@@ -325,7 +324,7 @@ api_key = st.sidebar.text_input(
 )
 
 # 3. Advanced Options
-with st.sidebar.expander("🛠️ Advanced Options"):
+with st.sidebar.expander("Advanced Options"):
     custom_instructions = st.text_area(
         "Additional AI Instructions:",
         placeholder="E.g., 'Use only standard Python libraries'..."
@@ -348,9 +347,9 @@ uploaded_file = st.file_uploader("Upload Homework", type=["pdf", "docx"])
 btn_col1, btn_col2 = st.columns([1, 1])
 
 with btn_col1:
-    generate_btn = st.button("🚀 Generate Notebook", use_container_width=True)
+    generate_btn = st.button("Generate Notebook", use_container_width=True)
 with btn_col2:
-    demo_btn = st.button("⚡ Try Demo Mode", use_container_width=True)
+    demo_btn = st.button("Try Demo Mode", use_container_width=True)
 
 # Initialize variables
 structured_data = None
@@ -361,7 +360,7 @@ final_roll = roll_no if roll_no else "0000"
 # --- LOGIC FLOW ---
 
 if demo_btn:
-    with st.status("⚡ Running Demo Mode...", expanded=True) as status:
+    with st.status("Running Demo Mode...", expanded=True) as status:
         st.write("📂 Loading mock homework file...")
         time.sleep(1) 
         st.write("🧠 Simulating AI thinking...")
@@ -401,7 +400,7 @@ elif generate_btn:
                 st.error("Could not extract text.")
             else:
                 # Step 2: AI Generation
-                st.write(f"Sending questions to {provider}...")
+                st.write(f"🧠Sending questions to {provider}(this usually takes time)...")
                 structured_data = generate_notebook_content(raw_text, api_key, provider, custom_instructions)
                 
                 if structured_data:
