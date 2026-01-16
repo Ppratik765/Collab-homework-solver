@@ -1,12 +1,10 @@
 import streamlit as st
-import google.generativeai as genai
-from openai import OpenAI
-import nbformat as nbf
-import pypdf
-import docx
 import json
 import io
 import time
+import nbformat as nbf
+# NOTE: Heavy imports (openai, genai, pypdf, etc.) are removed from here 
+# and moved inside the functions below to make the app load instantly.
 
 # --- 1. VISUAL BRANDING & ANIMATED BACKGROUND (CSS) ---
 st.set_page_config(page_title="Automated intelligence", layout="centered", page_icon="📝")
@@ -16,21 +14,20 @@ st.markdown("""
     /* 1. Hide Footer */
     footer {visibility: hidden;}
     
-    /* 2. MAKE HEADER TRANSPARENT (Fixes the "stuck arrow" look) */
+    /* 2. MAKE HEADER TRANSPARENT */
     header[data-testid="stHeader"] {
         background: transparent !important;
         z-index: 1000 !important;
     }
 
-    /* 3. ENTRANCE ANIMATION (Float Up) */
+    /* 3. ENTRANCE ANIMATION (Float Up) - Made faster (0.8s) for snappiness */
     @keyframes floatUp {
-        0% { opacity: 0; transform: translateY(50px); }
+        0% { opacity: 0; transform: translateY(30px); }
         100% { opacity: 1; transform: translateY(0); }
     }
     
-    /* Apply animation to main content and sidebar */
     .block-container, section[data-testid="stSidebar"] {
-        animation: floatUp 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        animation: floatUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
     /* 4. MAIN CONTENT STYLING */
@@ -43,17 +40,15 @@ st.markdown("""
         padding-left: 2rem;
         padding-right: 2rem;
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(5px);
+        backdrop-filter: blur(1px);
         border: 1px solid rgba(255, 255, 255, 0.1);
         margin-top: 2rem;
-        /* Ensure it centers automatically when sidebar closes */
         margin-left: auto;
         margin-right: auto;
     }
     
     /* 5. SIDEBAR STYLING */
     section[data-testid="stSidebar"] {
-        /* Removed fixed width to allow proper collapsing/centering */
         z-index: 99999 !important;
         background-color: rgba(15, 15, 20, 0.95);
         border-right: 1px solid rgba(255, 255, 255, 0.1);
@@ -85,7 +80,7 @@ st.markdown("""
         background-size: 550px 550px;
         animation: snowfall 10s linear infinite;
         pointer-events: none;
-        opacity: 0.6; 
+        opacity: 0.3; 
     }
 
     @keyframes snowfall {
@@ -96,15 +91,21 @@ st.markdown("""
     /* 8. Typography */
     h1, h2, h3 { color: #ffffff !important; text-shadow: 0 0 10px #00d2ff; }
     p, label, .stMarkdown { color: #e0e0e0 !important; }
+    
+    
 </style>
 """, unsafe_allow_html=True)
-
 # --- HELPER FUNCTIONS ---
 
 def extract_text_from_file(uploaded_file):
     """
-    Extracts text from PDF or DOCX based on file type.
+    Extracts text from PDF or DOCX.
+    Uses Lazy Loading for pypdf and docx.
     """
+    # LAZY IMPORT: Load these only when this function runs
+    import pypdf
+    import docx
+    
     text = ""
     try:
         if uploaded_file.type == "application/pdf":
@@ -125,11 +126,14 @@ def extract_text_from_file(uploaded_file):
 
 def generate_notebook_content(text_content, api_key, provider, custom_instructions=""):
     """
-    Sends text to the selected AI provider (Gemini or OpenAI)
-    and requests a structured JSON response.
+    Sends text to AI.
+    Uses Lazy Loading for genai and openai.
     """
-    
-    # Common System Prompt
+    # LAZY IMPORT: Load these only when this function runs
+    import google.generativeai as genai
+    from openai import OpenAI
+
+    # --- UPDATED SYSTEM PROMPT ---
     system_prompt = f"""
     You are an automated homework solver. 
     
@@ -137,8 +141,12 @@ def generate_notebook_content(text_content, api_key, provider, custom_instructio
     1. Analyze the text and identify if the questions are divided into parts or sections.
     2. If no specific sections exist, group everything under a single section named "Questions".
     3. Extract the distinct questions for each section.
-    4. Write working Python code to solve each question.
-    5. Return the output strictly as a JSON list of Section objects.
+    4. **CRITICAL - FORMATTING:** You MUST preserve the original formatting of the question text.
+       - If the question contains a **Table**, represent it using **Markdown Table syntax**.
+       - If the question contains **Bullet Points** or **Numbered Lists**, keep them as Markdown lists.
+       - If the question contains **Mathematical Equations**, keep them in LaTeX format (e.g., $x^2$).
+    5. Write working Python code to solve each question.
+    6. Return the output strictly as a JSON list of Section objects.
     
     **USER CUSTOM INSTRUCTIONS:**
     {custom_instructions}
@@ -149,8 +157,8 @@ def generate_notebook_content(text_content, api_key, provider, custom_instructio
             "section_title": "Part A: Multiple Choice",
             "questions": [
                 {{
-                    "question": "Text of Q1...",
-                    "code": "print('Answer to Q1')"
+                    "question": "Calculate the values for the following table:\\n\\n| Mass | Velocity |\\n|---|---|\\n| 10kg | 20m/s |",
+                    "code": "# Python code to solve..."
                 }}
             ]
         }}
@@ -220,10 +228,9 @@ def create_ipynb(student_name, roll_no, structured_data):
 MOCK_TEXT = "Question 1: Calculate the force of gravity on a 10kg object on Earth. Question 2: Create a list of the first 5 prime numbers."
 MOCK_JSON = [
     {
-        "section_title": "Physics & Math Demo",
+        "section_title": "Python Colab demo",
         "questions": [
-            {
-                "question": """Create a line plot for the following data:
+            {"question": """Create a line plot for the following data:
 - X-axis: Numbers from 1 to 10
 - Y-axis: Squares of the numbers (e.g., y=x2y = x^2y=x2)
 Customize the plot by adding:
@@ -243,13 +250,11 @@ plt.ylabel("Square")
 plt.grid(True)
 plt.show()"""
             },
-            {
-                "question": "Write a program that takes a list of temperatures in Celsius and converts them to Fahrenheit using map().",
+            {"question": "Write a program that takes a list of temperatures in Celsius and converts them to Fahrenheit using map().",
                 "code": """Input=[0, 20, 37, 100]
 Fahrenheit = lambda c: (c * 9/5) + 32
 output = list(map(Fahrenheit, Input))
-print(output)"""
-            }
+print(output)"""}
         ]
     }
 ]
@@ -294,11 +299,11 @@ api_key = st.sidebar.text_input(
     help=tooltip_text
 )
 
-# 3. NEW: Advanced Options (Custom Instructions)
+# 3. Advanced Options
 with st.sidebar.expander("🛠️ Advanced Options"):
     custom_instructions = st.text_area(
         "Additional AI Instructions:",
-        placeholder="E.g., 'Use only standard Python libraries', 'Add detailed comments', 'Solve using recursion'..."
+        placeholder="E.g., 'Use only standard Python libraries'..."
     )
 
 if not api_key:
@@ -315,7 +320,6 @@ with col2:
 uploaded_file = st.file_uploader("Upload Homework", type=["pdf", "docx"])
 
 # --- ACTION BUTTONS ---
-# We use columns to place "Generate" and "Demo" side-by-side
 btn_col1, btn_col2 = st.columns([1, 1])
 
 with btn_col1:
@@ -332,10 +336,9 @@ final_roll = roll_no if roll_no else "0000"
 # --- LOGIC FLOW ---
 
 if demo_btn:
-    # 4. DEMO MODE LOGIC
     with st.status("⚡ Running Demo Mode...", expanded=True) as status:
         st.write("📂 Loading mock homework file...")
-        time.sleep(1) # Fake loading time for effect
+        time.sleep(1) 
         st.write("🧠 Simulating AI thinking...")
         time.sleep(1)
         
@@ -356,7 +359,6 @@ if demo_btn:
     final_roll = "12345"
 
 elif generate_btn:
-    # STANDARD MODE LOGIC
     if not api_key:
         st.error(f"Please enter your {provider} API Key in the sidebar.")
     elif not uploaded_file:
@@ -371,12 +373,10 @@ elif generate_btn:
             
             if not raw_text or len(raw_text) < 10:
                 status.update(label="Failed", state="error")
-                st.error("Could not extract text. The file might be empty or an image scan.")
+                st.error("Could not extract text.")
             else:
                 # Step 2: AI Generation
-                st.write(f"Sending questions to {provider} (This takes time...")
-                
-                # Pass custom instructions here
+                st.write(f"Sending questions to {provider}...")
                 structured_data = generate_notebook_content(raw_text, api_key, provider, custom_instructions)
                 
                 if structured_data:
@@ -388,21 +388,17 @@ elif generate_btn:
                     nbf.write(notebook_obj, output_stream)
                     notebook_data = output_stream.getvalue().encode('utf-8')
 
-                    # Step 4: Complete
                     status.update(label="Process Complete!", state="complete", expanded=False)
                     st.success("✅ Notebook generated successfully!")
                 else:
                     status.update(label="Failed", state="error")
 
-# --- POST-GENERATION UI (Preview & Download) ---
+# --- POST-GENERATION UI ---
 
 if structured_data and notebook_data:
-    
-    # 2. LIVE PREVIEW (Expander)
     with st.expander("👁️ Live Preview (Check results before downloading)"):
         st.markdown("### Generated Questions & Solutions")
         
-        # Handle list vs dict structure safely
         data_to_show = structured_data
         if isinstance(structured_data, dict):
             for k, v in structured_data.items():
@@ -418,8 +414,7 @@ if structured_data and notebook_data:
                     st.code(q.get('code'), language='python')
                     st.markdown("---")
 
-    # WARNING & DOWNLOAD
-    st.warning("⚠️ **Note:** This code is AI-generated, AI can make mistakes. Please review before submitting.")
+    st.warning("⚠️ **Note:** This code is AI-generated, It is usually correct for college-level homeworks, but it's always a good practice to review the code before submitting.")
 
     col1, col2 = st.columns([1, 1])
     with col1:
