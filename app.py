@@ -110,7 +110,7 @@ st.markdown("""
     }
     
     /* OPTIONAL: Hides the "Hosted with Streamlit" footer if you want */
-    /* footer {visibility: hidden !important;} */
+    footer {visibility: hidden !important;}
     
     /* CRITICAL: Ensure the Sidebar Toggle (Top Left) stays visible */
     [data-testid="stSidebarCollapsedControl"] {
