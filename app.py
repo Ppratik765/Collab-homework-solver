@@ -91,6 +91,31 @@ st.markdown("""
     /* 8. Typography */
     h1, h2, h3 { color: #ffffff !important; text-shadow: 0 0 10px #00d2ff; }
     p, label, .stMarkdown { color: #e0e0e0 !important; }
+
+    /* --- 10. HIDE TOP RIGHT ELEMENTS (Fork, 3 Dots, GitHub Icon) --- */
+    
+    /* Hides the "Deploy" or "Fork" button */
+    .stDeployButton {
+        display: none !important;
+    }
+    
+    /* Hides the 3-dots menu (Hamburger menu) */
+    #MainMenu {
+        visibility: hidden !important;
+    }
+    
+    /* Hides the Toolbar completely (Newer Streamlit versions) */
+    [data-testid="stToolbar"] {
+        visibility: hidden !important;
+    }
+    
+    /* OPTIONAL: Hides the "Hosted with Streamlit" footer if you want */
+    /* footer {visibility: hidden !important;} */
+    
+    /* CRITICAL: Ensure the Sidebar Toggle (Top Left) stays visible */
+    [data-testid="stSidebarCollapsedControl"] {
+        visibility: visible !important;
+    }
     
     
 </style>
