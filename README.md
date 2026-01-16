@@ -1,6 +1,10 @@
 # Automated Intelligence
 
 Automated Intelligence is a specialised Streamlit application designed to streamline the process of solving homework assignments and technical assessments. By leveraging state-of-the-art Large Language Models (Google Gemini and OpenAI GPT), this tool ingests homework files (PDF or DOCX), analyses the content, generates code-based solutions, and compiles everything into a professionally formatted Jupyter Notebook (.ipynb) ready for Google Colab or local execution.
+## Website Link
+https://assignment2notebook.streamlit.app/
+## Project Screenshot
+<img width="1919" height="874" alt="image" src="https://github.com/user-attachments/assets/dad143d9-4fbc-4042-bbf1-4adea5c63727" />
 
 ## Table of Contents
 
