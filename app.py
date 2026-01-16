@@ -7,7 +7,7 @@ import nbformat as nbf
 # and moved inside the functions below to make the app load instantly.
 
 # --- 1. VISUAL BRANDING & ANIMATED BACKGROUND (CSS) ---
-st.set_page_config(page_title="Automated intelligence", layout="centered", page_icon=programmer.png)
+st.set_page_config(page_title="Automated intelligence", layout="centered", page_icon="programmer.png")
 
 st.markdown("""
 <style>
