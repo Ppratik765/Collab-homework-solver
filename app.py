@@ -223,12 +223,32 @@ MOCK_JSON = [
         "section_title": "Physics & Math Demo",
         "questions": [
             {
-                "question": "Calculate the force of gravity on a 10kg object on Earth.",
-                "code": "mass = 10\ngravity = 9.8\nforce = mass * gravity\nprint(f'Force: {force} Newtons')"
+                "question": """Create a line plot for the following data:
+- X-axis: Numbers from 1 to 10
+- Y-axis: Squares of the numbers (e.g., y=x2y = x^2y=x2)
+Customize the plot by adding:
+- A title
+- Labels for the X and Y axes
+- A grid.""",
+                "code": """import matplotlib.pyplot as plt
+import numpy as np
+x = np.arange(1, 11)
+y = x ** 2
+
+plt.figure()
+plt.plot(x, y)
+plt.title("Squares of Numbers")
+plt.xlabel("Number")
+plt.ylabel("Square")
+plt.grid(True)
+plt.show()"""
             },
             {
-                "question": "Create a list of the first 5 prime numbers.",
-                "code": "primes = [2, 3, 5, 7, 11]\nprint(primes)"
+                "question": "Write a program that takes a list of temperatures in Celsius and converts them to Fahrenheit using map().",
+                "code": """Input=[0, 20, 37, 100]
+Fahrenheit = lambda c: (c * 9/5) + 32
+output = list(map(Fahrenheit, Input))
+print(output)"""
             }
         ]
     }
@@ -354,7 +374,7 @@ elif generate_btn:
                 st.error("Could not extract text. The file might be empty or an image scan.")
             else:
                 # Step 2: AI Generation
-                st.write(f"🧠 Sending questions to {provider}...")
+                st.write(f"Sending questions to {provider} (This takes time...")
                 
                 # Pass custom instructions here
                 structured_data = generate_notebook_content(raw_text, api_key, provider, custom_instructions)
