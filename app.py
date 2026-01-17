@@ -113,6 +113,23 @@ st.markdown("""
     [data-testid="stSidebarCollapsedControl"] {
         visibility: visible !important;
     }
+
+    /* 10. FORCE SIDEBAR TOGGLE VISIBILITY (THE FIX) */
+    /* This targets the arrow button when sidebar is collapsed */
+    [data-testid="stSidebarCollapsedControl"] {
+        display: block !important;
+        visibility: visible !important;
+        z-index: 1000002 !important; /* Highest priority */
+        color: white !important;
+        background-color: rgba(255, 255, 255, 0.1); /* Subtle background to make it pop */
+        border-radius: 8px;
+        padding: 4px;
+    }
+    /* Force the arrow icon inside to be white */
+    [data-testid="stSidebarCollapsedControl"] svg {
+        fill: white !important;
+        stroke: white !important;
+    }
 /* --- MOBILE & TABLET COMPATIBILITY FIX --- */
     
     @media (max-width: 768px) {
@@ -127,6 +144,8 @@ st.markdown("""
         /* B. Force the Sidebar Arrow (Toggle) to be Visible & White */
         [data-testid="stSidebarCollapsedControl"] {
             visibility: visible !important;
+            top: 15px !important;
+            left: 15px !important;
             display: block !important;
             color: #ffffff !important;
             background-color: rgba(20, 20, 20, 0.6); /* Small bg to make it pop */
@@ -451,7 +470,7 @@ elif generate_btn:
 # --- POST-GENERATION UI ---
 
 if structured_data and notebook_data:
-    with st.expander("👁️ Live Preview (Check results before downloading)"):
+    with st.expander("Preview (Check results before downloading)"):
         st.markdown("### Generated Questions & Solutions")
         
         data_to_show = structured_data
@@ -474,7 +493,7 @@ if structured_data and notebook_data:
     col1, col2 = st.columns([1, 1])
     with col1:
         st.download_button(
-            label="📥 Download .ipynb File",
+            label="Download .ipynb File",
             data=notebook_data,
             file_name=f"{final_roll}{final_name} Assignment.ipynb",
             mime="application/x-ipynb+json",
