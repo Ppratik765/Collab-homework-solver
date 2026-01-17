@@ -14,12 +14,16 @@ st.markdown("""
     /* 1. Hide Footer */
     footer {visibility: hidden;}
     
-    /* 2. MAKE HEADER TRANSPARENT (But keep it there for layout) */
+    /* 2. HEADER TRANSPARENCY & LAYOUT FIX */
     header[data-testid="stHeader"] {
         background: transparent !important;
-        z-index: 100 !important;
-        /* Disable clicks on the header so you don't hit invisible things... */
-        pointer-events: none; 
+        /* CRITICAL: Do NOT set pointer-events: none here, or the arrow dies */
+        z-index: 999 !important;
+    }
+
+    /* Remove the colored line at the top of the page */
+    div[data-testid="stDecoration"] {
+        visibility: hidden;
     }
 
     /* 3. ENTRANCE ANIMATION */
@@ -33,7 +37,7 @@ st.markdown("""
 
     /* 4. MAIN CONTAINER */
     .block-container {
-        padding-top: 6rem !important;
+        padding-top: 5rem !important; /* Slightly less padding to keep arrow accessible */
         background: rgba(0, 0, 0, 0.6); 
         border-radius: 15px;
         padding-bottom: 2rem;
@@ -49,12 +53,12 @@ st.markdown("""
     
     /* 5. SIDEBAR */
     section[data-testid="stSidebar"] {
-        z-index: 1000001 !important;
+        z-index: 100000 !important;
         background-color: rgba(15, 15, 20, 0.95);
         border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    /* 6. BACKGROUND & SNOW */
+    /* 6. BACKGROUND */
     .stApp {
         background: linear-gradient(to bottom, #0b1021 0%, #1b2735 100%);
     }
@@ -83,67 +87,62 @@ st.markdown("""
         border-radius: 8px !important;
     }
 
-    /* 9. HIDE MENU ELEMENTS (Except the arrow) */
-    .stDeployButton, #MainMenu, [data-testid="stToolbar"] {
-        visibility: hidden !important;
+    /* 9. HIDE ONLY RIGHT-SIDE MENU ELEMENTS */
+    /* Hide the 3-dots menu */
+    [data-testid="stToolbar"] {
+        visibility: hidden !important; 
+        right: 0;
+    }
+    /* Hide the 'Deploy' button */
+    .stDeployButton {
         display: none !important;
     }
+    /* Hide the Hamburger menu specifically if visible */
+    #MainMenu {
+        visibility: hidden !important;
+    }
 
-    /* --- 10. THE ARROW FIX (NUCLEAR OPTION) --- */
-    
-    /* Target the Toggle Button specifically */
-    [data-testid="stSidebarCollapsedControl"] {
-        /* Force it to stay fixed on the screen glass */
+    /* --- 10. THE ARROW RESURRECTION --- */
+    /* We style the button wrapper specifically */
+    button[kind="header"] {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 8px !important;
+        color: white !important;
+        z-index: 1000002 !important;
         position: fixed !important;
-        top: 20px !important;
-        left: 20px !important;
-        
-        /* Make sure it sits on top of EVERYTHING */
-        z-index: 1000005 !important;
-        
-        /* Force it to be visible */
+        top: 15px !important;
+        left: 15px !important;
         display: block !important;
         visibility: visible !important;
-        opacity: 1 !important;
-        
-        /* CRITICAL: Re-enable clicking (overrides header pointer-events: none) */
-        pointer-events: auto !important;
-        
-        /* Styling to make it visible against dark backgrounds */
-        color: #ffffff !important;
-        background-color: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 8px;
-        padding: 4px;
-        width: 40px !important;
-        height: 40px !important;
-        transition: background-color 0.3s ease;
+        width: 40px;
+        height: 40px;
     }
     
-    /* Add hover effect so you know it's clickable */
-    [data-testid="stSidebarCollapsedControl"]:hover {
-        background-color: rgba(255, 255, 255, 0.4) !important;
-        cursor: pointer !important;
-    }
-    
-    /* Force the inner icon to be white */
-    [data-testid="stSidebarCollapsedControl"] svg {
+    /* Ensure the icon inside is white */
+    button[kind="header"] svg {
         fill: white !important;
         stroke: white !important;
-        color: white !important;
+    }
+    
+    /* Add a hover effect so you see it works */
+    button[kind="header"]:hover {
+        background-color: rgba(255, 255, 255, 0.3) !important;
+        border-color: #00d2ff !important;
     }
 
     /* --- 11. MOBILE OVERRIDE --- */
     @media (max-width: 768px) {
         .block-container {
-            padding-top: 5rem !important; /* Make room for the arrow */
+            padding-top: 4rem !important;
         }
-        
-        /* Triple-force visibility on mobile */
-        [data-testid="stSidebarCollapsedControl"] {
-            display: block !important;
-            visibility: visible !important;
-            background-color: rgba(30, 30, 30, 0.8) !important; /* Darker bg for mobile contrast */
+        /* Ensure arrow is touchable on mobile */
+        button[kind="header"] {
+            top: 10px !important;
+            left: 10px !important;
+            width: 44px !important;
+            height: 44px !important;
+            background-color: rgba(30, 30, 30, 0.9) !important;
         }
     }
 </style>
