@@ -103,6 +103,7 @@ st.markdown("""
     /* B. Hide the "Deploy" button specifically */
     .stDeployButton, [data-testid="stAppDeployButton"] {
         display: none !important;
+        visibility: hidden !important;
     }
     
     /* C. Hide the "Status" container (often holding the running man icon) */
