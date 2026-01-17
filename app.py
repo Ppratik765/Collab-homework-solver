@@ -209,6 +209,10 @@ def generate_notebook_content(text_content, api_key, provider, custom_instructio
 
     try:
         if provider == "Google Gemini":
+            # 1. Validation: Fail fast if key is obviously wrong
+            if not api_key or len(api_key.strip()) < 10:
+                 st.error("🚨 **Invalid API Key:** The key looks too short. Please check it.")
+                 return None
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel('gemini-2.5-flash')
             
@@ -219,20 +223,22 @@ def generate_notebook_content(text_content, api_key, provider, custom_instructio
                     generation_config={"response_mime_type": "application/json"}
                 )
                 return json.loads(response.text)
-            except ResourceExhausted:
-                st.error("⏳ **Gemini Rate Limit Hit:** You are sending requests too fast for the free tier. Please wait a minute and try again.")
-                return None
+            # 3. SPECIFIC ERROR CATCHING FOR GEMINI
             except InvalidArgument:
-                st.error("🚨 **Invalid API Key:** The Gemini API key you entered is incorrect. Please check your Google AI Studio dashboard.")
+                st.error("🚨**Invalid API Key:** Google rejected this key. It might be malformed or from a deleted project.")
                 return None
             except Unauthenticated:
-                 st.error("🔐 **Authentication Failed:** Your API Key is invalid or expired.")
-                 return None
+                st.error("🔐**Authentication Failed:** The API key is incorrect. Please copy it again from Google AI Studio.")
+                return None
+            except ResourceExhausted:
+                st.error("⏳**Rate Limit Hit:** You are sending requests too fast for the free tier.")
+                return None
+            except GoogleAPICallError as e:
+                st.error(f"**Google API Error:** {e.message}")
+                return None
             except Exception as e:
-                if "429" in str(e): # Fallback check for rate limits
-                     st.error("⏳ **Gemini Rate Limit Hit:** You are sending requests too fast.")
-                     return None
-                raise e # Re-raise unknown errors
+                st.error(f"❌**Gemini Error:** {str(e)}")
+                return None
 
         elif provider == "OpenAI (ChatGPT)":
             client = OpenAI(api_key=api_key)
@@ -247,10 +253,13 @@ def generate_notebook_content(text_content, api_key, provider, custom_instructio
                 )
                 return json.loads(response.choices[0].message.content)
             except AuthenticationError:
-                st.error("🚨 **Invalid API Key:** The OpenAI API key is incorrect. Please check your settings at platform.openai.com.")
+                st.error("🚨**Invalid API Key:** The OpenAI API key is incorrect. Please check your settings at platform.openai.com.")
                 return None
             except RateLimitError:
-                st.error("⏳ **Rate Limit Hit:** You have sent too many requests too quickly. Please wait a moment or check your OpenAI quota.")
+                st.error("⏳**Rate Limit Hit:** You have sent too many requests too quickly. Please wait a moment or check your OpenAI quota.")
+                return None
+            except Exception as e:
+                st.error(f"❌**OpenAI Error:** {str(e)}")
                 return None
     except json.JSONDecodeError:
         st.error("**AI Error:** The AI generated a response, but it wasn't valid JSON. Please try again (sometimes just clicking Generate again fixes this).")
@@ -444,30 +453,36 @@ elif generate_btn:
     else:
         with st.status("Processing your request...", expanded=True) as status:
             # Step 1: Parsing
-            st.write("🔍 Reading file content...")
-            raw_text = extract_text_from_file(uploaded_file)
-            
-            if not raw_text or len(raw_text) < 10:
-                status.update(label="Failed", state="error")
-                st.error("Could not extract text.")
-            else:
-                # Step 2: AI Generation
-                st.write(f"🧠Sending questions to {provider}(this usually takes time)...")
-                structured_data = generate_notebook_content(raw_text, api_key, provider, custom_instructions)
+            try:
+                st.write("🔍 Reading file content...")
+                raw_text = extract_text_from_file(uploaded_file)
                 
-                if structured_data:
-                    # Step 3: Building Notebook
-                    st.write("📝 Formatting .ipynb file...")
-                    notebook_obj = create_ipynb(name, roll_no, structured_data)
-                    
-                    output_stream = io.StringIO()
-                    nbf.write(notebook_obj, output_stream)
-                    notebook_data = output_stream.getvalue().encode('utf-8')
-
-                    status.update(label="Process Complete!", state="complete", expanded=False)
-                    st.success("✅ Notebook generated successfully!")
-                else:
+                if not raw_text or len(raw_text) < 10:
                     status.update(label="Failed", state="error")
+                    st.error("Could not extract text.")
+                else:
+                    # Step 2: AI Generation
+                    st.write(f"🧠Sending questions to {provider}(this usually takes time)...")
+                    structured_data = generate_notebook_content(raw_text, api_key, provider, custom_instructions)
+                    
+                    if structured_data:
+                        # Step 3: Building Notebook
+                        st.write("📝 Formatting .ipynb file...")
+                        notebook_obj = create_ipynb(name, roll_no, structured_data)
+                        
+                        output_stream = io.StringIO()
+                        nbf.write(notebook_obj, output_stream)
+                        notebook_data = output_stream.getvalue().encode('utf-8')
+
+                        status.update(label="Process Complete!", state="complete", expanded=False)
+                        st.success("✅ Notebook generated successfully!")
+                    else:
+                        status.update(label="Generation Failed", state="error", expanded=True)
+
+            except Exception as e:
+                # Catch-all for any other crash to ensure spinner stops
+                status.update(label="System Error", state="error", expanded=True)
+                st.error(f"Critical Error: {str(e)}")
 
 # --- POST-GENERATION UI ---
 
