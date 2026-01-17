@@ -92,25 +92,40 @@ st.markdown("""
     h1, h2, h3 { color: #ffffff !important; text-shadow: 0 0 10px #00d2ff; }
     p, label, .stMarkdown { color: #e0e0e0 !important; }
 
-    /* --- 10. HIDE TOP RIGHT ELEMENTS (Fork, 3 Dots, GitHub Icon) --- */
+/* --- 10. HIDE TOP RIGHT ELEMENTS (Fork, 3 Dots, GitHub Icon) --- */
     
-    /* Hides the "Deploy" or "Fork" button */
+    /* Hides the "Deploy" button */
     .stDeployButton {
         display: none !important;
     }
     
-    /* Hides the 3-dots menu (Hamburger menu) */
+    /* Hides the "Fork" button & Toolbar specifically */
+    [data-testid="stToolbar"] {
+        display: none !important;
+    }
+
+    /* Hides the hamburger menu (3 dots) */
     #MainMenu {
-        visibility: hidden !important;
+        display: none !important;
     }
     
-    
-    /* OPTIONAL: Hides the "Hosted with Streamlit" footer if you want */
-    /* footer {visibility: hidden !important;} */
-    
-    /* CRITICAL: Ensure the Sidebar Toggle (Top Left) stays visible */
+    /* Hide the Decoration Bar (the colored line at the top) */
+    div[data-testid="stDecoration"] {
+        display: none !important;
+    }
+
+    /* CRITICAL: Ensure the Sidebar Arrow (Top Left) stays visible */
     [data-testid="stSidebarCollapsedControl"] {
+        display: block !important;
         visibility: visible !important;
+        z-index: 1000000 !important; /* Ensure it's above everything */
+        color: white !important; /* Force color to make sure it's seen */
+    }
+    
+    /* Force the arrow icon to be white */
+    [data-testid="stSidebarCollapsedControl"] svg {
+        fill: white !important;
+        stroke: white !important;
     }
 </style>
 """, unsafe_allow_html=True)
