@@ -335,14 +335,13 @@ api_key = st.sidebar.text_input(
 )
 
 # 🔒 SECURITY MESSAGE
-st.sidebar.markdown("---") # specific divider
 
 # Main reassurance message
 st.sidebar.success("🔒 **Security Note:** Your API Key is processed securely in memory and is **never** stored.")
 
 # Technical details in an expandable dropdown
 with st.sidebar.expander("Why is this secure?"):
-    st.sidebar.markdown("""
+    st.markdown("""
     * **Encrypted Transit:** Your key is sent via HTTPS, making it invisible to hackers.
     * **RAM-Only:** The key lives in temporary memory for this session only.
     * **No Databases:** We do not have a database. Nothing is saved to disk.
