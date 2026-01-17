@@ -92,40 +92,50 @@ st.markdown("""
     h1, h2, h3 { color: #ffffff !important; text-shadow: 0 0 10px #00d2ff; }
     p, label, .stMarkdown { color: #e0e0e0 !important; }
 
-/* --- 10. SURGICAL REMOVAL OF RIGHT-SIDE MENU --- */
+/* --- 10. SURGICAL REMOVAL (The Real Fix) --- */
     
-    /* A. Hide the Toolbar (GitHub/Fork/Menu) but KEEP the space */
-    [data-testid="stToolbar"] {
-        visibility: hidden !important;
+    /* A. Hide the "Decoration" line (The rainbow line at the top) */
+    div[data-testid="stDecoration"] {
+        visibility: hidden;
+        height: 0px;
+    }
+
+    /* B. Hide the "Deploy" button specifically */
+    .stDeployButton, [data-testid="stAppDeployButton"] {
+        display: none !important;
     }
     
-    /* B. Hide Deploy Button & Decoration */
-    .stDeployButton, div[data-testid="stDecoration"] {
+    /* C. Hide the "Status" container (often holding the running man icon) */
+    [data-testid="stStatusWidget"] {
         display: none !important;
     }
 
-    /* --- 11. THE SIDEBAR ARROW FIX --- */
-    
-    /* C. Force the Sidebar Control (The Arrow) to be visible */
-    /* This overrides the parent's visibility:hidden */
-    [data-testid="stSidebarCollapsedControl"] {
-        visibility: visible !important;
-        display: block !important;
-        z-index: 1000005 !important;
-        
-        /* OPTIONAL: Give it a background so it stands out against your dark theme */
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        padding: 4px;
-        color: white !important;
-        
-        /* Ensure it's positioned correctly in the top left */
-        position: fixed !important;
-        top: 20px !important;
-        left: 20px !important;
+    /* D. Hide the RIGHT-SIDE Menu (3 dots, GitHub, Fork) */
+    /* This targets ONLY the action elements, preserving the left-side arrow */
+    [data-testid="stHeaderActionElements"] {
+        display: none !important;
     }
     
-    /* Ensure the icon inside is white */
+    /* E. Alternatively, if stToolbar is used in your version, hide its contents but NOT the container */
+    [data-testid="stToolbar"] {
+        border: none;
+    }
+    /* Hide the specific children of the toolbar that are on the right */
+    [data-testid="stToolbar"] > span {
+        display: none !important;
+    }
+
+    /* --- 11. FORCE ARROW VISIBILITY --- */
+    
+    /* Now that the Header is NOT hidden, we just style the arrow to be white */
+    [data-testid="stSidebarCollapsedControl"] {
+        display: block !important;
+        visibility: visible !important;
+        color: white !important;
+        background-color: transparent !important; /* Blends with header */
+    }
+    
+    /* Ensure the icon SVG is white */
     [data-testid="stSidebarCollapsedControl"] svg {
         fill: white !important;
         stroke: white !important;
