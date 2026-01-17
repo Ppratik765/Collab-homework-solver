@@ -118,7 +118,7 @@ st.markdown("""
     [data-testid="stSidebarCollapsedControl"] {
         display: block !important;
         visibility: visible !important;
-        z-index: 1000000 !important; /* Ensure it's above everything */
+        z-index: 180700 !important; /* Ensure it's above everything */
         color: white !important; /* Force color to make sure it's seen */
     }
     
