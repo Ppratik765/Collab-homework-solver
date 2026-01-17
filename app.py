@@ -99,7 +99,7 @@ st.markdown("""
     
     /* Target by Text Link Attribute (If it's an anchor tag) */
     header a[href*="deploy"], header a[href*="fork"] {
-        display: none !important;
+        display: hidden !important;
     }
 
     /* --- 10. PROTECT THE ARROW, GITHUB ICON & MENU --- */
