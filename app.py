@@ -14,10 +14,12 @@ st.markdown("""
     /* 1. Hide Footer */
     footer {visibility: hidden;}
     
-    /* 2. HEADER TRANSPARENCY (We allow clicks now to avoid issues) */
+    /* 2. MAKE HEADER TRANSPARENT (But keep it there for layout) */
     header[data-testid="stHeader"] {
         background: transparent !important;
         z-index: 100 !important;
+        /* Disable clicks on the header so you don't hit invisible things... */
+        pointer-events: none; 
     }
 
     /* 3. ENTRANCE ANIMATION */
@@ -29,9 +31,9 @@ st.markdown("""
         animation: floatUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    /* 4. MAIN CONTAINER (The Glass Card) */
+    /* 4. MAIN CONTAINER */
     .block-container {
-        padding-top: 5rem !important; /* Gave it space so it doesn't hit the arrow */
+        padding-top: 6rem !important;
         background: rgba(0, 0, 0, 0.6); 
         border-radius: 15px;
         padding-bottom: 2rem;
@@ -45,14 +47,14 @@ st.markdown("""
         margin-right: auto;
     }
     
-    /* 5. SIDEBAR STYLING */
+    /* 5. SIDEBAR */
     section[data-testid="stSidebar"] {
-        z-index: 1000002 !important; /* High Z-index to sit over content */
+        z-index: 1000001 !important;
         background-color: rgba(15, 15, 20, 0.95);
         border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    /* 6. BACKGROUND */
+    /* 6. BACKGROUND & SNOW */
     .stApp {
         background: linear-gradient(to bottom, #0b1021 0%, #1b2735 100%);
     }
@@ -75,56 +77,74 @@ st.markdown("""
     h1, h2, h3 { color: #ffffff !important; text-shadow: 0 0 10px #00d2ff; }
     p, label, .stMarkdown { color: #e0e0e0 !important; }
 
-    /* 8. SIDEBAR API BOX (Permanent Red Border) */
+    /* 8. PERMANENT RED BORDER (Sidebar) */
     section[data-testid="stSidebar"] div[data-baseweb="base-input"] {
         border: 2px solid #ff4b4b !important;
         border-radius: 8px !important;
     }
 
-    /* 9. HIDE MENU ELEMENTS (Fork, 3-dots, etc.) */
+    /* 9. HIDE MENU ELEMENTS (Except the arrow) */
     .stDeployButton, #MainMenu, [data-testid="stToolbar"] {
         visibility: hidden !important;
         display: none !important;
     }
 
-    /* --- 10. THE ARROW RESTORATION (The Fix) --- */
+    /* --- 10. THE ARROW FIX (NUCLEAR OPTION) --- */
     
-    /* We target the toggle button specifically */
+    /* Target the Toggle Button specifically */
     [data-testid="stSidebarCollapsedControl"] {
-        /* FIXED POSITION: Pins it to the screen, ignoring all other layout */
+        /* Force it to stay fixed on the screen glass */
         position: fixed !important;
         top: 20px !important;
         left: 20px !important;
         
-        /* Z-INDEX: Higher than the glass container (10) and header (100) */
+        /* Make sure it sits on top of EVERYTHING */
         z-index: 1000005 !important;
         
-        /* VISIBILITY: Force it to show */
+        /* Force it to be visible */
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
         
-        /* LOOK & FEEL: Make it look like a button */
+        /* CRITICAL: Re-enable clicking (overrides header pointer-events: none) */
+        pointer-events: auto !important;
+        
+        /* Styling to make it visible against dark backgrounds */
         color: #ffffff !important;
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: rgba(255, 255, 255, 0.15);
         border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 8px;
+        padding: 4px;
         width: 40px !important;
         height: 40px !important;
         transition: background-color 0.3s ease;
     }
-
-    /* HOVER STATE */
+    
+    /* Add hover effect so you know it's clickable */
     [data-testid="stSidebarCollapsedControl"]:hover {
-        background-color: rgba(255, 255, 255, 0.3) !important;
+        background-color: rgba(255, 255, 255, 0.4) !important;
+        cursor: pointer !important;
+    }
+    
+    /* Force the inner icon to be white */
+    [data-testid="stSidebarCollapsedControl"] svg {
+        fill: white !important;
+        stroke: white !important;
+        color: white !important;
     }
 
-    /* ICON COLOR: Force the arrow SVG to be white */
-    [data-testid="stSidebarCollapsedControl"] svg, 
-    [data-testid="stSidebarCollapsedControl"] img {
-        fill: white !important;
-        color: white !important;
-        stroke: white !important;
+    /* --- 11. MOBILE OVERRIDE --- */
+    @media (max-width: 768px) {
+        .block-container {
+            padding-top: 5rem !important; /* Make room for the arrow */
+        }
+        
+        /* Triple-force visibility on mobile */
+        [data-testid="stSidebarCollapsedControl"] {
+            display: block !important;
+            visibility: visible !important;
+            background-color: rgba(30, 30, 30, 0.8) !important; /* Darker bg for mobile contrast */
+        }
     }
 </style>
 """, unsafe_allow_html=True)
