@@ -8,7 +8,7 @@ import nbformat as nbf
 # and moved inside the functions below to make the app load instantly.
 
 # --- 1. VISUAL BRANDING & ANIMATED BACKGROUND (CSS) ---
-st.set_page_config(page_title="Automated intelligence", layout="centered", page_icon="programmer.png")
+st.set_page_config(page_title="Automated Intelligence", layout="centered", page_icon="programmer.png")
 
 st.markdown("""
 <style>
@@ -219,13 +219,20 @@ def generate_notebook_content(text_content, api_key, provider, custom_instructio
                     generation_config={"response_mime_type": "application/json"}
                 )
                 return json.loads(response.text)
+            except ResourceExhausted:
+                st.error("⏳ **Gemini Rate Limit Hit:** You are sending requests too fast for the free tier. Please wait a minute and try again.")
+                return None
+            except InvalidArgument:
+                st.error("🚨 **Invalid API Key:** The Gemini API key you entered is incorrect. Please check your Google AI Studio dashboard.")
+                return None
+            except Unauthenticated:
+                 st.error("🔐 **Authentication Failed:** Your API Key is invalid or expired.")
+                 return None
             except Exception as e:
-                # Gemini specific error handling
-                if "401" in str(e) or "API_KEY_INVALID" in str(e):
-                    st.error("🚨 **Invalid API Key:** The Gemini API key you entered is incorrect. Please check your Google AI Studio dashboard.")
-                    return None
-                else:
-                    raise e # Re-raise other errors to be caught by the outer except
+                if "429" in str(e): # Fallback check for rate limits
+                     st.error("⏳ **Gemini Rate Limit Hit:** You are sending requests too fast.")
+                     return None
+                raise e # Re-raise unknown errors
 
         elif provider == "OpenAI (ChatGPT)":
             client = OpenAI(api_key=api_key)
