@@ -94,57 +94,38 @@ st.markdown("""
 
 /* --- 10. SURGICAL REMOVAL OF RIGHT-SIDE MENU --- */
     
-    /* A. Hide the Toolbar container (where GitHub/Fork usually live) */
-    /* We use visibility: hidden instead of display: none so it doesn't break layout */
+    /* A. Hide the Toolbar (GitHub/Fork/Menu) but KEEP the space */
     [data-testid="stToolbar"] {
         visibility: hidden !important;
     }
     
-    /* B. Also hide the Decoration bar (rainbow line) */
-    div[data-testid="stDecoration"] {
-        visibility: hidden !important;
-    }
-    
-    /* C. Specific kill for Deploy button */
-    .stDeployButton {
-        display: none !important;
-    }
-    
-    /* D. Specific kill for Main Menu (Hamburger) */
-    #MainMenu {
+    /* B. Hide Deploy Button & Decoration */
+    .stDeployButton, div[data-testid="stDecoration"] {
         display: none !important;
     }
 
-    /* --- 11. THE SIDEBAR ARROW PROTECTOR --- */
+    /* --- 11. THE SIDEBAR ARROW FIX --- */
     
-    /* We explicitly target the arrow control and force it to be visible */
-    /* "position: fixed" breaks it out of any hidden parent containers */
+    /* C. Force the Sidebar Control (The Arrow) to be visible */
+    /* This overrides the parent's visibility:hidden */
     [data-testid="stSidebarCollapsedControl"] {
         visibility: visible !important;
         display: block !important;
+        z-index: 1000005 !important;
         
-        /* PIN IT TO THE SCREEN */
-        position: fixed !important;
-        top: 20px !important;
-        left: 20px !important;
-        z-index: 1000005 !important; /* Sit on top of everything */
-        
-        /* Style it to look good on your dark theme */
-        color: #ffffff !important;
+        /* OPTIONAL: Give it a background so it stands out against your dark theme */
         background-color: rgba(255, 255, 255, 0.1);
         border-radius: 8px;
         padding: 4px;
-        width: 40px;
-        height: 40px;
-        transition: background-color 0.3s;
+        color: white !important;
+        
+        /* Ensure it's positioned correctly in the top left */
+        position: fixed !important;
+        top: 20px !important;
+        left: 20px !important;
     }
-
-    /* Hover effect */
-    [data-testid="stSidebarCollapsedControl"]:hover {
-        background-color: rgba(255, 255, 255, 0.25);
-    }
-
-    /* Force the icon inside to be white */
+    
+    /* Ensure the icon inside is white */
     [data-testid="stSidebarCollapsedControl"] svg {
         fill: white !important;
         stroke: white !important;
