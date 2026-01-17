@@ -94,7 +94,7 @@ st.markdown("""
         height: 0 !important;
         position: absolute !important;
         pointer-events: none !important;
-        display: none !important;
+        display: hidden !important;
     }
     
     /* Target by Text Link Attribute (If it's an anchor tag) */
