@@ -79,30 +79,6 @@ st.markdown("""
     h1, h2, h3 { color: #ffffff !important; text-shadow: 0 0 10px #00d2ff; }
     p, label, .stMarkdown { color: #e0e0e0 !important; }
 
-    /* --- 9. THE "ATTRIBUTE SNIPER" (Kills Fork Button) --- */
-    
-    /* Target any link in the header that contains 'fork' or 'deploy' in the URL */
-    header[data-testid="stHeader"] a[href*="fork"], 
-    header[data-testid="stHeader"] a[href*="deploy"] {
-        display: none !important;
-        visibility: hidden !important;
-        pointer-events: none !important;
-    }
-
-    /* Just in case it's a button and not a link */
-    .stDeployButton {
-        display: none !important;
-    }
-    [data-testid="stAppDeployButton"] {
-        display: none !important;
-    }
-
-    /* --- 10. PROTECT EVERYTHING ELSE --- */
-    
-    /* Ensure the Toolbar (GitHub Icon + Menu) is visible */
-    [data-testid="stToolbar"] {
-        visibility: visible !important;
-        display: flex !important;
     }
 
     /* Ensure Sidebar Arrow is visible */
@@ -121,33 +97,45 @@ st.markdown("""
 
 # --- HELPER FUNCTIONS ---
 
-def remove_fork_button():
-    # This JavaScript code targets the specific button by its text content
+def clean_ui():
     js_code = """
     <script>
-    function removeFork() {
-        // Get all buttons and anchor tags (links) on the page
-        const elements = window.parent.document.querySelectorAll('button, a');
-        
-        elements.forEach(el => {
-            // Check if the text inside the element is exactly "Fork" or "Deploy"
-            // We use toUpperCase() to make it case-insensitive
+    function cleanUI() {
+        // 1. FORK/DEPLOY BUTTON (Text Search)
+        const allElements = window.parent.document.querySelectorAll('button, a');
+        allElements.forEach(el => {
             if (el.innerText && (el.innerText.toUpperCase() === 'FORK' || el.innerText.toUpperCase() === 'DEPLOY')) {
                 el.style.display = 'none';
-                el.style.visibility = 'hidden';
             }
         });
+
+        // 2. GITHUB ICON (Hidden by removing the Toolbar)
+        const toolbar = window.parent.document.querySelector('[data-testid="stToolbar"]');
+        if (toolbar) {
+            toolbar.style.display = 'none';
+        }
+
+        // 3. 3-DOTS MENU (Hidden by removing Header Action Elements)
+        const menu = window.parent.document.querySelector('[data-testid="stHeaderActionElements"]');
+        if (menu) {
+            menu.style.display = 'none';
+        }
+        
+        // Backup selector for the menu (older Streamlit versions)
+        const oldMenu = window.parent.document.querySelector('#MainMenu');
+        if (oldMenu) {
+            oldMenu.style.display = 'none';
+        }
     }
 
-    // Run the function every 500ms to catch the button if it loads late
-    setInterval(removeFork, 500);
+    // Run every 500ms to ensure they stay hidden if Streamlit re-renders
+    setInterval(cleanUI, 500);
     </script>
     """
-    # Inject the JS. height=0 makes the component invisible.
     components.html(js_code, height=0)
 
-# --- CALL THE FUNCTION ---
-remove_fork_button()
+# --- CALL THE FUNCTION AT THE TOP OF YOUR APP ---
+clean_ui()
 
 def extract_text_from_file(uploaded_file):
     """
@@ -350,6 +338,21 @@ api_key = st.sidebar.text_input(
     type="password",
     help=tooltip_text
 )
+
+# 🔒 SECURITY MESSAGE
+st.markdown("---") # specific divider
+
+# Main reassurance message
+st.success("🔒 **Security Note:** Your API Key is processed securely in memory and is **never** stored.")
+
+# Technical details in an expandable dropdown
+with st.expander("Why is this secure?"):
+    st.markdown("""
+    * **Encrypted Transit:** Your key is sent via HTTPS, making it invisible to hackers.
+    * **RAM-Only:** The key lives in temporary memory for this session only.
+    * **No Databases:** We do not have a database. Nothing is saved to disk.
+    * **Session Isolation:** Your inputs are sandboxed and cannot be seen by other users.
+    """)
 
 # 3. Advanced Options
 with st.sidebar.expander("Advanced Options"):
