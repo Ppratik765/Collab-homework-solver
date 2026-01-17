@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import json
 import io
 import time
@@ -119,6 +120,34 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- HELPER FUNCTIONS ---
+
+def remove_fork_button():
+    # This JavaScript code targets the specific button by its text content
+    js_code = """
+    <script>
+    function removeFork() {
+        // Get all buttons and anchor tags (links) on the page
+        const elements = window.parent.document.querySelectorAll('button, a');
+        
+        elements.forEach(el => {
+            // Check if the text inside the element is exactly "Fork" or "Deploy"
+            // We use toUpperCase() to make it case-insensitive
+            if (el.innerText && (el.innerText.toUpperCase() === 'FORK' || el.innerText.toUpperCase() === 'DEPLOY')) {
+                el.style.display = 'none';
+                el.style.visibility = 'hidden';
+            }
+        });
+    }
+
+    // Run the function every 500ms to catch the button if it loads late
+    setInterval(removeFork, 500);
+    </script>
+    """
+    # Inject the JS. height=0 makes the component invisible.
+    components.html(js_code, height=0)
+
+# --- CALL THE FUNCTION ---
+remove_fork_button()
 
 def extract_text_from_file(uploaded_file):
     """
