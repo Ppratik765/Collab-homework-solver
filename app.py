@@ -11,22 +11,19 @@ st.set_page_config(page_title="Automated intelligence", layout="centered", page_
 
 st.markdown("""
 <style>
-    /* 1. Hide Footer */
+    /* 1. HIDE FOOTER & DECORATION BAR */
     footer {visibility: hidden;}
-    
-    /* 2. HEADER TRANSPARENCY & LAYOUT FIX */
-    header[data-testid="stHeader"] {
-        background: transparent !important;
-        /* CRITICAL: Do NOT set pointer-events: none here, or the arrow dies */
-        z-index: 999 !important;
-    }
-
-    /* Remove the colored line at the top of the page */
     div[data-testid="stDecoration"] {
         visibility: hidden;
+        height: 0px;
+    }
+    
+    /* 2. HEADER TRANSPARENCY */
+    header[data-testid="stHeader"] {
+        background: transparent !important;
     }
 
-    /* 3. ENTRANCE ANIMATION */
+    /* 3. ANIMATION */
     @keyframes floatUp {
         0% { opacity: 0; transform: translateY(30px); }
         100% { opacity: 1; transform: translateY(0); }
@@ -37,7 +34,7 @@ st.markdown("""
 
     /* 4. MAIN CONTAINER */
     .block-container {
-        padding-top: 5rem !important; /* Slightly less padding to keep arrow accessible */
+        padding-top: 5rem !important; 
         background: rgba(0, 0, 0, 0.6); 
         border-radius: 15px;
         padding-bottom: 2rem;
@@ -58,7 +55,7 @@ st.markdown("""
         border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    /* 6. BACKGROUND */
+    /* 6. BACKGROUND & SNOW */
     .stApp {
         background: linear-gradient(to bottom, #0b1021 0%, #1b2735 100%);
     }
@@ -87,61 +84,55 @@ st.markdown("""
         border-radius: 8px !important;
     }
 
-    /* 9. HIDE ONLY RIGHT-SIDE MENU ELEMENTS */
-    /* Hide the 3-dots menu */
+    /* 9. KILL THE GITHUB/FORK/MENU ICONS */
+    /* This targets the container that holds the top-right buttons */
     [data-testid="stToolbar"] {
         visibility: hidden !important; 
-        right: 0;
-    }
-    /* Hide the 'Deploy' button */
-    .stDeployButton {
         display: none !important;
     }
-    /* Hide the Hamburger menu specifically if visible */
-    #MainMenu {
-        visibility: hidden !important;
-    }
+    /* Specific targets just in case */
+    .stDeployButton { display: none !important; }
+    #MainMenu { display: none !important; }
+    header[data-testid="stHeader"] .stAction { display: none !important; }
 
-    /* --- 10. THE ARROW RESURRECTION --- */
-    /* We style the button wrapper specifically */
-    button[kind="header"] {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        border-radius: 8px !important;
-        color: white !important;
-        z-index: 1000002 !important;
-        position: fixed !important;
-        top: 15px !important;
-        left: 15px !important;
+    /* --- 10. ARROW RESURRECTION (THE FIX) --- */
+    
+    /* We rip the arrow out of the header layout and PIN it to the screen */
+    [data-testid="stSidebarCollapsedControl"] {
+        position: fixed !important; /* Detach from header */
+        top: 20px !important;
+        left: 20px !important;
+        z-index: 1000005 !important; /* Above everything */
         display: block !important;
         visibility: visible !important;
-        width: 40px;
-        height: 40px;
+        
+        /* Style it so you can see it */
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        padding: 5px;
+        color: white !important;
     }
     
-    /* Ensure the icon inside is white */
-    button[kind="header"] svg {
+    /* Force the icon inside to be white */
+    [data-testid="stSidebarCollapsedControl"] svg {
         fill: white !important;
         stroke: white !important;
     }
     
-    /* Add a hover effect so you see it works */
-    button[kind="header"]:hover {
-        background-color: rgba(255, 255, 255, 0.3) !important;
-        border-color: #00d2ff !important;
+    /* Make sure it's clickable even if header is weird */
+    [data-testid="stSidebarCollapsedControl"] {
+        pointer-events: auto !important;
     }
 
     /* --- 11. MOBILE OVERRIDE --- */
     @media (max-width: 768px) {
         .block-container {
-            padding-top: 4rem !important;
+            padding-top: 5rem !important;
         }
-        /* Ensure arrow is touchable on mobile */
-        button[kind="header"] {
-            top: 10px !important;
-            left: 10px !important;
-            width: 44px !important;
-            height: 44px !important;
+        [data-testid="stSidebarCollapsedControl"] {
+            top: 15px !important;
+            left: 15px !important;
             background-color: rgba(30, 30, 30, 0.9) !important;
         }
     }
