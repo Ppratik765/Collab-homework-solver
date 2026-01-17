@@ -14,13 +14,13 @@ st.markdown("""
     /* 1. Hide Footer */
     footer {visibility: hidden;}
     
-    /* 2. MAKE HEADER TRANSPARENT */
+    /* 2. MAKE HEADER TRANSPARENT (But keep z-index high for the arrow) */
     header[data-testid="stHeader"] {
         background: transparent !important;
-        z-index: 1000 !important;
+        z-index: 1000000 !important; /* High Z-index ensures buttons are clickable */
     }
 
-    /* 3. ENTRANCE ANIMATION (Float Up) - Made faster (0.8s) for snappiness */
+    /* 3. ENTRANCE ANIMATION */
     @keyframes floatUp {
         0% { opacity: 0; transform: translateY(30px); }
         100% { opacity: 1; transform: translateY(0); }
@@ -49,7 +49,7 @@ st.markdown("""
     
     /* 5. SIDEBAR STYLING */
     section[data-testid="stSidebar"] {
-        z-index: 99999 !important;
+        z-index: 1000001 !important; /* Sit on top of everything */
         background-color: rgba(15, 15, 20, 0.95);
         border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
@@ -63,20 +63,11 @@ st.markdown("""
     .stApp::before {
         content: "";
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        top: 0; left: 0; width: 100%; height: 100%;
         background-image: 
             radial-gradient(4px 4px at 100px 50px, #fff, transparent), 
             radial-gradient(6px 6px at 200px 150px, #fff, transparent), 
-            radial-gradient(3px 3px at 300px 250px, #fff, transparent), 
-            radial-gradient(4px 4px at 400px 350px, #fff, transparent), 
-            radial-gradient(6px 6px at 500px 100px, #fff, transparent), 
-            radial-gradient(3px 3px at 50px 200px, #fff, transparent), 
-            radial-gradient(4px 4px at 150px 300px, #fff, transparent), 
-            radial-gradient(6px 6px at 250px 400px, #fff, transparent), 
-            radial-gradient(3px 3px at 350px 500px, #fff, transparent);
+            radial-gradient(3px 3px at 300px 250px, #fff, transparent);
         background-size: 550px 550px;
         animation: snowfall 10s linear infinite;
         pointer-events: none;
@@ -92,27 +83,6 @@ st.markdown("""
     h1, h2, h3 { color: #ffffff !important; text-shadow: 0 0 10px #00d2ff; }
     p, label, .stMarkdown { color: #e0e0e0 !important; }
 
-    /* --- 10. HIDE TOP RIGHT ELEMENTS (Fork, 3 Dots, GitHub Icon) --- */
-    
-    /* Hides the "Deploy" or "Fork" button */
-    .stDeployButton {
-        display: none !important;
-    }
-    
-    /* Hides the 3-dots menu (Hamburger menu) */
-    #MainMenu {
-        visibility: hidden !important;
-    }
-    
-    /* Hides the Toolbar completely (Newer Streamlit versions) */
-    [data-testid="stToolbar"] {
-        visibility: hidden !important;
-    }
-    
-    /* CRITICAL: Ensure the Sidebar Toggle (Top Left) stays visible */
-    [data-testid="stSidebarCollapsedControl"] {
-        visibility: visible !important;
-    }
 
     /* 10. FORCE SIDEBAR TOGGLE VISIBILITY (THE FIX) */
     /* This targets the arrow button when sidebar is collapsed */
@@ -125,50 +95,36 @@ st.markdown("""
         border-radius: 8px;
         padding: 4px;
     }
+    
     /* Force the arrow icon inside to be white */
     [data-testid="stSidebarCollapsedControl"] svg {
         fill: white !important;
         stroke: white !important;
     }
-/* --- MOBILE & TABLET COMPATIBILITY FIX --- */
-    
+
+    /* 11. HIDE OTHER TOP RIGHT ELEMENTS */
+    .stDeployButton, #MainMenu, [data-testid="stToolbar"] {
+        visibility: hidden !important;
+        display: none !important;
+    }
+
+    /* --- MOBILE & TABLET ADJUSTMENTS --- */
     @media (max-width: 768px) {
-        /* A. Reset Padding for Small Screens */
         .block-container {
-            padding-top: 3rem !important;
+            padding-top: 4rem !important; /* More space for the arrow */
             padding-left: 1rem !important;
             padding-right: 1rem !important;
-            margin-top: 1rem !important;
         }
-
-        /* B. Force the Sidebar Arrow (Toggle) to be Visible & White */
+        
+        /* Ensure the arrow is positioned correctly on mobile */
         [data-testid="stSidebarCollapsedControl"] {
-            visibility: visible !important;
             top: 15px !important;
             left: 15px !important;
-            display: block !important;
-            color: #ffffff !important;
-            background-color: rgba(20, 20, 20, 0.6); /* Small bg to make it pop */
-            border-radius: 10px;
-            z-index: 1000001 !important; /* Highest priority */
-            top: 10px !important;
-            left: 10px !important;
-        }
-        
-        /* C. Ensure the Sidebar Icon (Chevron) itself is white */
-        [data-testid="stSidebarCollapsedControl"] svg {
-            fill: #ffffff !important;
-            stroke: #ffffff !important;
-        }
-        
-        /* D. Ensure Sidebar covers enough width on mobile */
-        section[data-testid="stSidebar"] {
-            width: 80% !important;
-            max-width: 300px !important;
         }
     }
 </style>
 """, unsafe_allow_html=True)
+
 # --- HELPER FUNCTIONS ---
 
 def extract_text_from_file(uploaded_file):
