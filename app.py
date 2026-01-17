@@ -78,58 +78,43 @@ st.markdown("""
     h1, h2, h3 { color: #ffffff !important; text-shadow: 0 0 10px #00d2ff; }
     p, label, .stMarkdown { color: #e0e0e0 !important; }
 
-    /* --- 9. THE "FORK" BUTTON EXTERMINATOR (SNIPER EDITION) --- */
+    /* --- 9. THE "ATTRIBUTE SNIPER" (Kills Fork Button) --- */
     
-    /* Target by Class */
-    .stDeployButton {
+    /* Target any link in the header that contains 'fork' or 'deploy' in the URL */
+    header[data-testid="stHeader"] a[href*="fork"], 
+    header[data-testid="stHeader"] a[href*="deploy"] {
         display: none !important;
         visibility: hidden !important;
-    }
-    
-    /* Target by ID (Most powerful) */
-    [data-testid="stAppDeployButton"] {
-        visibility: hidden !important;
-        opacity: 0 !important;
-        width: 0 !important;
-        height: 0 !important;
-        position: absolute !important;
         pointer-events: none !important;
-        display: hidden !important;
-    }
-    
-    /* Target by Text Link Attribute (If it's an anchor tag) */
-    header a[href*="deploy"], header a[href*="fork"] {
-        display: hidden !important;
     }
 
-    /* --- 10. PROTECT THE ARROW, GITHUB ICON & MENU --- */
+    /* Just in case it's a button and not a link */
+    .stDeployButton {
+        display: none !important;
+    }
+    [data-testid="stAppDeployButton"] {
+        display: none !important;
+    }
+
+    /* --- 10. PROTECT EVERYTHING ELSE --- */
     
-    /* Ensure the Toolbar (holding GitHub + Menu) stays visible */
+    /* Ensure the Toolbar (GitHub Icon + Menu) is visible */
     [data-testid="stToolbar"] {
         visibility: visible !important;
         display: flex !important;
-        opacity: 1 !important;
-    }
-    
-    /* Ensure the 3-dots Menu stays visible */
-    [data-testid="stHeaderActionElements"], #MainMenu {
-        visibility: visible !important;
-        display: flex !important;
     }
 
-    /* Ensure the Sidebar Arrow stays visible & clickable */
+    /* Ensure Sidebar Arrow is visible */
     [data-testid="stSidebarCollapsedControl"] {
         display: block !important;
         visibility: visible !important;
         color: white !important;
-        opacity: 1 !important;
     }
     
     [data-testid="stSidebarCollapsedControl"] svg {
         fill: white !important;
         stroke: white !important;
     }
-
 </style>
 """, unsafe_allow_html=True)
 
