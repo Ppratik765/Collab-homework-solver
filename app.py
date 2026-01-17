@@ -11,30 +11,29 @@ st.set_page_config(page_title="Automated intelligence", layout="centered", page_
 
 st.markdown("""
 <style>
-    /* 1. HIDE FOOTER & DECORATION BAR */
+    /* 1. Hide Footer */
     footer {visibility: hidden;}
-    div[data-testid="stDecoration"] {
-        visibility: hidden;
-        height: 0px;
-    }
     
-    /* 2. HEADER TRANSPARENCY */
+    /* 2. MAKE HEADER TRANSPARENT */
     header[data-testid="stHeader"] {
         background: transparent !important;
+        z-index: 1000 !important;
     }
 
-    /* 3. ANIMATION */
+    /* 3. ENTRANCE ANIMATION (Float Up) - Made faster (0.8s) for snappiness */
     @keyframes floatUp {
         0% { opacity: 0; transform: translateY(30px); }
         100% { opacity: 1; transform: translateY(0); }
     }
+    
     .block-container, section[data-testid="stSidebar"] {
         animation: floatUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    /* 4. MAIN CONTAINER */
+    /* 4. MAIN CONTENT STYLING */
     .block-container {
-        padding-top: 5rem !important; 
+        padding-top: 6rem !important;
+        z-index: 10;
         background: rgba(0, 0, 0, 0.6); 
         border-radius: 15px;
         padding-bottom: 2rem;
@@ -48,93 +47,74 @@ st.markdown("""
         margin-right: auto;
     }
     
-    /* 5. SIDEBAR */
+    /* 5. SIDEBAR STYLING */
     section[data-testid="stSidebar"] {
-        z-index: 100000 !important;
+        z-index: 99999 !important;
         background-color: rgba(15, 15, 20, 0.95);
         border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    /* 6. BACKGROUND & SNOW */
+    /* 6. Background Color */
     .stApp {
         background: linear-gradient(to bottom, #0b1021 0%, #1b2735 100%);
     }
+    
+    /* 7. Lively Snowfall Animation */
     .stApp::before {
-        content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         background-image: 
             radial-gradient(4px 4px at 100px 50px, #fff, transparent), 
             radial-gradient(6px 6px at 200px 150px, #fff, transparent), 
-            radial-gradient(3px 3px at 300px 250px, #fff, transparent);
+            radial-gradient(3px 3px at 300px 250px, #fff, transparent), 
+            radial-gradient(4px 4px at 400px 350px, #fff, transparent), 
+            radial-gradient(6px 6px at 500px 100px, #fff, transparent), 
+            radial-gradient(3px 3px at 50px 200px, #fff, transparent), 
+            radial-gradient(4px 4px at 150px 300px, #fff, transparent), 
+            radial-gradient(6px 6px at 250px 400px, #fff, transparent), 
+            radial-gradient(3px 3px at 350px 500px, #fff, transparent);
         background-size: 550px 550px;
         animation: snowfall 10s linear infinite;
-        pointer-events: none; opacity: 0.3; 
+        pointer-events: none;
+        opacity: 0.3; 
     }
+
     @keyframes snowfall {
         0% { background-position: 0 0; }
         100% { background-position: 0 550px; }
     }
 
-    /* 7. TEXT */
+    /* 8. Typography */
     h1, h2, h3 { color: #ffffff !important; text-shadow: 0 0 10px #00d2ff; }
     p, label, .stMarkdown { color: #e0e0e0 !important; }
 
-    /* 8. PERMANENT RED BORDER (Sidebar) */
-    section[data-testid="stSidebar"] div[data-baseweb="base-input"] {
-        border: 2px solid #ff4b4b !important;
-        border-radius: 8px !important;
-    }
-
-    /* 9. KILL THE GITHUB/FORK/MENU ICONS */
-    /* This targets the container that holds the top-right buttons */
-    [data-testid="stToolbar"] {
-        visibility: hidden !important; 
+    /* --- 10. HIDE TOP RIGHT ELEMENTS (Fork, 3 Dots, GitHub Icon) --- */
+    
+    /* Hides the "Deploy" or "Fork" button */
+    .stDeployButton {
         display: none !important;
     }
-    /* Specific targets just in case */
-    .stDeployButton { display: none !important; }
-    #MainMenu { display: none !important; }
-    header[data-testid="stHeader"] .stAction { display: none !important; }
-
-    /* --- 10. ARROW RESURRECTION (THE FIX) --- */
     
-    /* We rip the arrow out of the header layout and PIN it to the screen */
+    /* Hides the 3-dots menu (Hamburger menu) */
+    #MainMenu {
+        visibility: hidden !important;
+    }
+    
+    /* Hides the Toolbar completely (Newer Streamlit versions) */
+    [data-testid="stToolbar"] {
+        visibility: hidden !important;
+    }
+    
+    /* OPTIONAL: Hides the "Hosted with Streamlit" footer if you want */
+    /* footer {visibility: hidden !important;} */
+    
+    /* CRITICAL: Ensure the Sidebar Toggle (Top Left) stays visible */
     [data-testid="stSidebarCollapsedControl"] {
-        position: fixed !important; /* Detach from header */
-        top: 20px !important;
-        left: 20px !important;
-        z-index: 1000005 !important; /* Above everything */
-        display: block !important;
         visibility: visible !important;
-        
-        /* Style it so you can see it */
-        background-color: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 8px;
-        padding: 5px;
-        color: white !important;
-    }
-    
-    /* Force the icon inside to be white */
-    [data-testid="stSidebarCollapsedControl"] svg {
-        fill: white !important;
-        stroke: white !important;
-    }
-    
-    /* Make sure it's clickable even if header is weird */
-    [data-testid="stSidebarCollapsedControl"] {
-        pointer-events: auto !important;
-    }
-
-    /* --- 11. MOBILE OVERRIDE --- */
-    @media (max-width: 768px) {
-        .block-container {
-            padding-top: 5rem !important;
-        }
-        [data-testid="stSidebarCollapsedControl"] {
-            top: 15px !important;
-            left: 15px !important;
-            background-color: rgba(30, 30, 30, 0.9) !important;
-        }
     }
 </style>
 """, unsafe_allow_html=True)
