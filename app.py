@@ -14,10 +14,12 @@ st.markdown("""
     /* 1. Hide Footer */
     footer {visibility: hidden;}
     
-    /* 2. MAKE HEADER TRANSPARENT (But keep z-index high for the arrow) */
+    /* 2. HEADER TRANSPARENCY */
     header[data-testid="stHeader"] {
         background: transparent !important;
-        z-index: 1000000 !important; /* High Z-index ensures buttons are clickable */
+        z-index: 1000 !important;
+        /* Let clicks pass through the header so they hit the arrow */
+        pointer-events: none !important; 
     }
 
     /* 3. ENTRANCE ANIMATION */
@@ -25,7 +27,6 @@ st.markdown("""
         0% { opacity: 0; transform: translateY(30px); }
         100% { opacity: 1; transform: translateY(0); }
     }
-    
     .block-container, section[data-testid="stSidebar"] {
         animation: floatUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
@@ -49,31 +50,27 @@ st.markdown("""
     
     /* 5. SIDEBAR STYLING */
     section[data-testid="stSidebar"] {
-        z-index: 1000001 !important; /* Sit on top of everything */
+        z-index: 1000001 !important; 
         background-color: rgba(15, 15, 20, 0.95);
         border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    /* 6. Background Color */
+    /* 6. Background */
     .stApp {
         background: linear-gradient(to bottom, #0b1021 0%, #1b2735 100%);
     }
     
-    /* 7. Lively Snowfall Animation */
+    /* 7. Snowfall */
     .stApp::before {
-        content: "";
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
+        content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background-image: 
             radial-gradient(4px 4px at 100px 50px, #fff, transparent), 
             radial-gradient(6px 6px at 200px 150px, #fff, transparent), 
             radial-gradient(3px 3px at 300px 250px, #fff, transparent);
         background-size: 550px 550px;
         animation: snowfall 10s linear infinite;
-        pointer-events: none;
-        opacity: 0.3; 
+        pointer-events: none; opacity: 0.3; 
     }
-
     @keyframes snowfall {
         0% { background-position: 0 0; }
         100% { background-position: 0 550px; }
@@ -83,43 +80,65 @@ st.markdown("""
     h1, h2, h3 { color: #ffffff !important; text-shadow: 0 0 10px #00d2ff; }
     p, label, .stMarkdown { color: #e0e0e0 !important; }
 
-
-    /* 10. FORCE SIDEBAR TOGGLE VISIBILITY (THE FIX) */
-    /* This targets the arrow button when sidebar is collapsed */
+    /* 9. SIDEBAR TOGGLE FIX (THE IMPORTANT PART) */
+    /* Detach the arrow from the header and stick it to the screen */
     [data-testid="stSidebarCollapsedControl"] {
+        position: fixed !important;
+        top: 20px !important;
+        left: 20px !important;
+        z-index: 1000005 !important; /* Higher than everything */
         display: block !important;
         visibility: visible !important;
-        z-index: 1000002 !important; /* Highest priority */
-        color: white !important;
-        background-color: rgba(255, 255, 255, 0.1); /* Subtle background to make it pop */
-        border-radius: 8px;
-        padding: 4px;
+        pointer-events: auto !important; /* Make clickable */
+        
+        /* Styling to make it look like a button */
+        color: #ffffff !important;
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px !important;
+        padding: 6px !important;
+        width: 44px !important; /* Good touch target for mobile */
+        height: 44px !important;
+        transition: all 0.3s ease;
     }
     
-    /* Force the arrow icon inside to be white */
+    /* Hover Effect */
+    [data-testid="stSidebarCollapsedControl"]:hover {
+        background-color: rgba(255, 255, 255, 0.3) !important;
+        border-color: #ffffff;
+    }
+    
+    /* Force the Icon to be White */
     [data-testid="stSidebarCollapsedControl"] svg {
         fill: white !important;
         stroke: white !important;
     }
 
-    /* 11. HIDE OTHER TOP RIGHT ELEMENTS */
+    /* 10. HIDE MENU ELEMENTS */
     .stDeployButton, #MainMenu, [data-testid="stToolbar"] {
         visibility: hidden !important;
         display: none !important;
     }
 
-    /* --- MOBILE & TABLET ADJUSTMENTS --- */
+    /* 11. PERMANENT RED BORDER (Sidebar API) */
+    section[data-testid="stSidebar"] div[data-baseweb="base-input"] {
+        border: 2px solid #ff4b4b !important;
+        border-radius: 8px !important;
+    }
+
+    /* --- MOBILE ADJUSTMENTS --- */
     @media (max-width: 768px) {
         .block-container {
-            padding-top: 4rem !important; /* More space for the arrow */
+            padding-top: 5rem !important; /* Push content down so arrow fits */
             padding-left: 1rem !important;
             padding-right: 1rem !important;
         }
         
-        /* Ensure the arrow is positioned correctly on mobile */
+        /* Ensure the arrow is definitely visible on mobile */
         [data-testid="stSidebarCollapsedControl"] {
             top: 15px !important;
             left: 15px !important;
+            background-color: rgba(20, 20, 20, 0.8) !important; /* Darker bg for contrast */
         }
     }
 </style>
