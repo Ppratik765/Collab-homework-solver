@@ -104,10 +104,6 @@ st.markdown("""
         visibility: hidden !important;
     }
     
-    /* Hides the Toolbar completely (Newer Streamlit versions) */
-    [data-testid="stToolbar"] {
-        visibility: hidden !important;
-    }
     
     /* OPTIONAL: Hides the "Hosted with Streamlit" footer if you want */
     /* footer {visibility: hidden !important;} */
