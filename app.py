@@ -96,7 +96,7 @@ st.markdown("""
     
     /* Hides the "Deploy" or "Fork" button */
     .stDeployButton {
-        visibility: hidden !important;
+        display: none !important;
     }
     
     /* Hides the 3-dots menu (Hamburger menu) */
