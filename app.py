@@ -78,37 +78,37 @@ st.markdown("""
     h1, h2, h3 { color: #ffffff !important; text-shadow: 0 0 10px #00d2ff; }
     p, label, .stMarkdown { color: #e0e0e0 !important; }
 
-    /* --- 9. THE "FORK" BUTTON EXTERMINATOR --- */
+    /* --- 9. THE "FORK" BUTTON EXTERMINATOR (SNIPER EDITION) --- */
     
-    /* We target every possible ID/Class for the deploy button */
-    .stDeployButton, 
-    [data-testid="stAppDeployButton"],
-    [data-testid="stToolbar"] button { 
-        /* Be careful here: stToolbar button might target GitHub icon if not careful.
-           The selectors below are safer: */
-    }
-
-    /* TARGET SPECIFICALLY THE DEPLOY/FORK BUTTON WRAPPER */
-    div[class*="stDeployButton"], 
-    button[class*="stDeployButton"],
-    a[class*="stDeployButton"] {
+    /* Target by Class */
+    .stDeployButton {
         display: none !important;
         visibility: hidden !important;
-        width: 0 !important;
     }
     
-    /* ALSO TARGET BY TEST-ID (Used by Streamlit Cloud) */
+    /* Target by ID (Most powerful) */
     [data-testid="stAppDeployButton"] {
-        display: none !important;
         visibility: hidden !important;
+        opacity: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
+        position: absolute !important;
+        pointer-events: none !important;
+        display: none !important;
+    }
+    
+    /* Target by Text Link Attribute (If it's an anchor tag) */
+    header a[href*="deploy"], header a[href*="fork"] {
+        display: none !important;
     }
 
-    /* --- 10. PROTECT OTHER ELEMENTS --- */
+    /* --- 10. PROTECT THE ARROW, GITHUB ICON & MENU --- */
     
-    /* Ensure the Toolbar itself (holding GitHub icon + 3 dots) stays visible */
+    /* Ensure the Toolbar (holding GitHub + Menu) stays visible */
     [data-testid="stToolbar"] {
         visibility: visible !important;
         display: flex !important;
+        opacity: 1 !important;
     }
     
     /* Ensure the 3-dots Menu stays visible */
@@ -117,11 +117,12 @@ st.markdown("""
         display: flex !important;
     }
 
-    /* Ensure the Sidebar Arrow stays visible */
+    /* Ensure the Sidebar Arrow stays visible & clickable */
     [data-testid="stSidebarCollapsedControl"] {
         display: block !important;
         visibility: visible !important;
         color: white !important;
+        opacity: 1 !important;
     }
     
     [data-testid="stSidebarCollapsedControl"] svg {
