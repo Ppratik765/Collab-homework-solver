@@ -14,18 +14,17 @@ st.markdown("""
     /* 1. Hide Footer */
     footer {visibility: hidden;}
     
-    /* 2. MAKE HEADER TRANSPARENT */
+    /* 2. HEADER TRANSPARENCY */
     header[data-testid="stHeader"] {
         background: transparent !important;
         z-index: 1000 !important;
     }
 
-    /* 3. ENTRANCE ANIMATION (Float Up) - Made faster (0.8s) for snappiness */
+    /* 3. ENTRANCE ANIMATION */
     @keyframes floatUp {
         0% { opacity: 0; transform: translateY(30px); }
         100% { opacity: 1; transform: translateY(0); }
     }
-    
     .block-container, section[data-testid="stSidebar"] {
         animation: floatUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
@@ -61,28 +60,15 @@ st.markdown("""
     
     /* 7. Lively Snowfall Animation */
     .stApp::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background-image: 
             radial-gradient(4px 4px at 100px 50px, #fff, transparent), 
             radial-gradient(6px 6px at 200px 150px, #fff, transparent), 
-            radial-gradient(3px 3px at 300px 250px, #fff, transparent), 
-            radial-gradient(4px 4px at 400px 350px, #fff, transparent), 
-            radial-gradient(6px 6px at 500px 100px, #fff, transparent), 
-            radial-gradient(3px 3px at 50px 200px, #fff, transparent), 
-            radial-gradient(4px 4px at 150px 300px, #fff, transparent), 
-            radial-gradient(6px 6px at 250px 400px, #fff, transparent), 
-            radial-gradient(3px 3px at 350px 500px, #fff, transparent);
+            radial-gradient(3px 3px at 300px 250px, #fff, transparent);
         background-size: 550px 550px;
         animation: snowfall 10s linear infinite;
-        pointer-events: none;
-        opacity: 0.3; 
+        pointer-events: none; opacity: 0.3; 
     }
-
     @keyframes snowfall {
         0% { background-position: 0 0; }
         100% { background-position: 0 550px; }
@@ -92,51 +78,52 @@ st.markdown("""
     h1, h2, h3 { color: #ffffff !important; text-shadow: 0 0 10px #00d2ff; }
     p, label, .stMarkdown { color: #e0e0e0 !important; }
 
-/* --- 10. SURGICAL REMOVAL (The Real Fix) --- */
+    /* --- 9. THE "FORK" BUTTON EXTERMINATOR --- */
     
-    /* A. Hide the "Decoration" line (The rainbow line at the top) */
-    div[data-testid="stDecoration"] {
-        visibility: hidden;
-        height: 0px;
+    /* We target every possible ID/Class for the deploy button */
+    .stDeployButton, 
+    [data-testid="stAppDeployButton"],
+    [data-testid="stToolbar"] button { 
+        /* Be careful here: stToolbar button might target GitHub icon if not careful.
+           The selectors below are safer: */
     }
 
-    /* B. Hide the "Deploy" button specifically */
-    .stDeployButton, [data-testid="stAppDeployButton"] {
+    /* TARGET SPECIFICALLY THE DEPLOY/FORK BUTTON WRAPPER */
+    div[class*="stDeployButton"], 
+    button[class*="stDeployButton"],
+    a[class*="stDeployButton"] {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+    }
+    
+    /* ALSO TARGET BY TEST-ID (Used by Streamlit Cloud) */
+    [data-testid="stAppDeployButton"] {
         display: none !important;
         visibility: hidden !important;
     }
-    
-    /* C. Hide the "Status" container (often holding the running man icon) */
-    [data-testid="stStatusWidget"] {
-        display: none !important;
-    }
 
-    /* D. Hide the RIGHT-SIDE Menu (3 dots, GitHub, Fork) */
-    /* This targets ONLY the action elements, preserving the left-side arrow */
-    [data-testid="stHeaderActionElements"] {
-        display: none !important;
-    }
+    /* --- 10. PROTECT OTHER ELEMENTS --- */
     
-    /* E. Alternatively, if stToolbar is used in your version, hide its contents but NOT the container */
+    /* Ensure the Toolbar itself (holding GitHub icon + 3 dots) stays visible */
     [data-testid="stToolbar"] {
-        border: none;
+        visibility: visible !important;
+        display: flex !important;
     }
-    /* Hide the specific children of the toolbar that are on the right */
-    [data-testid="stToolbar"] > span {
-        display: none !important;
+    
+    /* Ensure the 3-dots Menu stays visible */
+    [data-testid="stHeaderActionElements"], #MainMenu {
+        visibility: visible !important;
+        display: flex !important;
     }
 
-    /* --- 11. FORCE ARROW VISIBILITY --- */
-    
-    /* Now that the Header is NOT hidden, we just style the arrow to be white */
+    /* Ensure the Sidebar Arrow stays visible */
     [data-testid="stSidebarCollapsedControl"] {
         display: block !important;
         visibility: visible !important;
         color: white !important;
-        background-color: transparent !important; /* Blends with header */
     }
     
-    /* Ensure the icon SVG is white */
     [data-testid="stSidebarCollapsedControl"] svg {
         fill: white !important;
         stroke: white !important;
