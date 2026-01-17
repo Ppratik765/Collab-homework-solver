@@ -109,11 +109,6 @@ def clean_ui():
             }
         });
 
-        // 2. GITHUB ICON (Hidden by removing the Toolbar)
-        const toolbar = window.parent.document.querySelector('[data-testid="stToolbar"]');
-        if (toolbar) {
-            toolbar.style.display = 'none';
-        }
 
         // 3. 3-DOTS MENU (Hidden by removing Header Action Elements)
         const menu = window.parent.document.querySelector('[data-testid="stHeaderActionElements"]');
@@ -340,14 +335,14 @@ api_key = st.sidebar.text_input(
 )
 
 # 🔒 SECURITY MESSAGE
-st.markdown("---") # specific divider
+st.sidebar.markdown("---") # specific divider
 
 # Main reassurance message
-st.success("🔒 **Security Note:** Your API Key is processed securely in memory and is **never** stored.")
+st.sidebar.success("🔒 **Security Note:** Your API Key is processed securely in memory and is **never** stored.")
 
 # Technical details in an expandable dropdown
-with st.expander("Why is this secure?"):
-    st.markdown("""
+with st.sidebar.expander("Why is this secure?"):
+    st.sidebar.markdown("""
     * **Encrypted Transit:** Your key is sent via HTTPS, making it invisible to hackers.
     * **RAM-Only:** The key lives in temporary memory for this session only.
     * **No Databases:** We do not have a database. Nothing is saved to disk.
