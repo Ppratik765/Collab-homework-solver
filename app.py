@@ -145,6 +145,9 @@ def extract_text_from_file(uploaded_file):
     try:
         if uploaded_file.type == "application/pdf":
             pdf_reader = pypdf.PdfReader(uploaded_file)
+            if pdf_reader.is_encrypted:
+                st.error("🔒 **Error:** This PDF is password protected. Please remove the password and upload again.")
+                return None
             for page in pdf_reader.pages:
                 text += page.extract_text() + "\n"
         
@@ -155,6 +158,10 @@ def extract_text_from_file(uploaded_file):
                 
     except Exception as e:
         st.error(f"Error reading file: {e}")
+        return None
+    # Validation check
+    if not text.strip():
+        st.error("⚠️ **Empty File:** We couldn't find any readable text in this file. It might be an image-only PDF (scanned). Try converting it to text first.")
         return None
         
     return text
@@ -206,26 +213,41 @@ def generate_notebook_content(text_content, api_key, provider, custom_instructio
             model = genai.GenerativeModel('gemini-2.5-flash')
             
             full_prompt = f"{system_prompt}\n\n**Input Text:**\n{text_content}"
-            
-            response = model.generate_content(
-                full_prompt,
-                generation_config={"response_mime_type": "application/json"}
-            )
-            return json.loads(response.text)
+            try:
+                response = model.generate_content(
+                    full_prompt,
+                    generation_config={"response_mime_type": "application/json"}
+                )
+                return json.loads(response.text)
+            except Exception as e:
+                # Gemini specific error handling
+                if "401" in str(e) or "API_KEY_INVALID" in str(e):
+                    st.error("🚨 **Invalid API Key:** The Gemini API key you entered is incorrect. Please check your Google AI Studio dashboard.")
+                    return None
+                else:
+                    raise e # Re-raise other errors to be caught by the outer except
 
         elif provider == "OpenAI (ChatGPT)":
             client = OpenAI(api_key=api_key)
-            
-            response = client.chat.completions.create(
-                model="gpt-4o-mini", 
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"Here is the homework text:\n{text_content}"}
-                ],
-                response_format={ "type": "json_object" }
-            )
-            return json.loads(response.choices[0].message.content)
-
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini", 
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": f"Here is the homework text:\n{text_content}"}
+                    ],
+                    response_format={ "type": "json_object" }
+                )
+                return json.loads(response.choices[0].message.content)
+            except AuthenticationError:
+                st.error("🚨 **Invalid API Key:** The OpenAI API key is incorrect. Please check your settings at platform.openai.com.")
+                return None
+            except RateLimitError:
+                st.error("⏳ **Rate Limit Hit:** You have sent too many requests too quickly. Please wait a moment or check your OpenAI quota.")
+                return None
+    except json.JSONDecodeError:
+        st.error("**AI Error:** The AI generated a response, but it wasn't valid JSON. Please try again (sometimes just clicking Generate again fixes this).")
+        return None
     except Exception as e:
         st.error(f"Error communicating with {provider}: {e}")
         return None
@@ -295,7 +317,7 @@ print(output)"""}
 ]
 
 # --- UI START ---
-st.title("Automated intelligence")
+st.title("Automated Intelligence")
 st.write("Upload a PDF or Word file, and I'll generate a solved Jupyter Notebook (.ipynb) for you.")
 
 # --- SIDEBAR CONFIGURATION ---
