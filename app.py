@@ -333,6 +333,8 @@ api_key = st.sidebar.text_input(
     type="password",
     help=tooltip_text
 )
+if not api_key:
+    st.sidebar.warning(f"Please enter your {provider} API Key to proceed.")
 
 # 🔒 SECURITY MESSAGE
 
@@ -354,10 +356,6 @@ with st.sidebar.expander("Advanced Options"):
         "Additional AI Instructions:",
         placeholder="E.g., 'Use only standard Python libraries'..."
     )
-
-if not api_key:
-    st.sidebar.warning(f"Please enter your {provider} API Key to proceed.")
-
 
 # --- MAIN INPUTS ---
 col1, col2 = st.columns(2)
