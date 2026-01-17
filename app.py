@@ -92,41 +92,64 @@ st.markdown("""
     h1, h2, h3 { color: #ffffff !important; text-shadow: 0 0 10px #00d2ff; }
     p, label, .stMarkdown { color: #e0e0e0 !important; }
 
-/* --- 10. HIDE TOP RIGHT ELEMENTS (Fork, 3 Dots, GitHub Icon) --- */
+/* --- 10. SURGICAL REMOVAL OF RIGHT-SIDE MENU --- */
     
-    /* Hides the "Deploy" button */
+    /* A. Hide the Toolbar container (where GitHub/Fork usually live) */
+    /* We use visibility: hidden instead of display: none so it doesn't break layout */
+    [data-testid="stToolbar"] {
+        visibility: hidden !important;
+    }
+    
+    /* B. Also hide the Decoration bar (rainbow line) */
+    div[data-testid="stDecoration"] {
+        visibility: hidden !important;
+    }
+    
+    /* C. Specific kill for Deploy button */
     .stDeployButton {
         display: none !important;
     }
     
-    /* Hides the "Fork" button & Toolbar specifically */
-    [data-testid="stToolbar"] {
-        display: none !important;
-    }
-
-    /* Hides the hamburger menu (3 dots) */
+    /* D. Specific kill for Main Menu (Hamburger) */
     #MainMenu {
         display: none !important;
     }
+
+    /* --- 11. THE SIDEBAR ARROW PROTECTOR --- */
     
-    /* Hide the Decoration Bar (the colored line at the top) */
-    div[data-testid="stDecoration"] {
-        display: none !important;
+    /* We explicitly target the arrow control and force it to be visible */
+    /* "position: fixed" breaks it out of any hidden parent containers */
+    [data-testid="stSidebarCollapsedControl"] {
+        visibility: visible !important;
+        display: block !important;
+        
+        /* PIN IT TO THE SCREEN */
+        position: fixed !important;
+        top: 20px !important;
+        left: 20px !important;
+        z-index: 1000005 !important; /* Sit on top of everything */
+        
+        /* Style it to look good on your dark theme */
+        color: #ffffff !important;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 4px;
+        width: 40px;
+        height: 40px;
+        transition: background-color 0.3s;
     }
 
-    /* CRITICAL: Ensure the Sidebar Arrow (Top Left) stays visible */
-    [data-testid="stSidebarCollapsedControl"] {
-        display: block !important;
-        visibility: visible !important;
-        z-index: 180700 !important; /* Ensure it's above everything */
-        color: white !important; /* Force color to make sure it's seen */
+    /* Hover effect */
+    [data-testid="stSidebarCollapsedControl"]:hover {
+        background-color: rgba(255, 255, 255, 0.25);
     }
-    
-    /* Force the arrow icon to be white */
+
+    /* Force the icon inside to be white */
     [data-testid="stSidebarCollapsedControl"] svg {
         fill: white !important;
         stroke: white !important;
     }
+
 </style>
 """, unsafe_allow_html=True)
 
