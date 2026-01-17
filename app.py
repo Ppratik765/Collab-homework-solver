@@ -14,11 +14,11 @@ st.markdown("""
     /* 1. Hide Footer */
     footer {visibility: hidden;}
     
-    /* 2. HEADER TRANSPARENCY */
+    /* 2. HEADER TRANSPARENCY & POINTER EVENTS FIX */
     header[data-testid="stHeader"] {
         background: transparent !important;
         z-index: 1000 !important;
-        /* Let clicks pass through the header so they hit the arrow */
+        /* This allows you to click "through" the transparent header to hit the arrow */
         pointer-events: none !important; 
     }
 
@@ -50,17 +50,17 @@ st.markdown("""
     
     /* 5. SIDEBAR STYLING */
     section[data-testid="stSidebar"] {
-        z-index: 1000001 !important; 
+        z-index: 1000001 !important; /* High Z ensures it overlays content */
         background-color: rgba(15, 15, 20, 0.95);
         border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    /* 6. Background */
+    /* 6. BACKGROUND */
     .stApp {
         background: linear-gradient(to bottom, #0b1021 0%, #1b2735 100%);
     }
     
-    /* 7. Snowfall */
+    /* 7. SNOWFALL ANIMATION */
     .stApp::before {
         content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background-image: 
@@ -76,42 +76,14 @@ st.markdown("""
         100% { background-position: 0 550px; }
     }
 
-    /* 8. Typography */
+    /* 8. TYPOGRAPHY */
     h1, h2, h3 { color: #ffffff !important; text-shadow: 0 0 10px #00d2ff; }
     p, label, .stMarkdown { color: #e0e0e0 !important; }
 
-    /* 9. SIDEBAR TOGGLE FIX (THE IMPORTANT PART) */
-    /* Detach the arrow from the header and stick it to the screen */
-    [data-testid="stSidebarCollapsedControl"] {
-        position: fixed !important;
-        top: 20px !important;
-        left: 20px !important;
-        z-index: 1000005 !important; /* Higher than everything */
-        display: block !important;
-        visibility: visible !important;
-        pointer-events: auto !important; /* Make clickable */
-        
-        /* Styling to make it look like a button */
-        color: #ffffff !important;
-        background-color: rgba(255, 255, 255, 0.15) !important;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+    /* 9. PERMANENT RED BORDER (Sidebar API) */
+    section[data-testid="stSidebar"] div[data-baseweb="base-input"] {
+        border: 2px solid #ff4b4b !important;
         border-radius: 8px !important;
-        padding: 6px !important;
-        width: 44px !important; /* Good touch target for mobile */
-        height: 44px !important;
-        transition: all 0.3s ease;
-    }
-    
-    /* Hover Effect */
-    [data-testid="stSidebarCollapsedControl"]:hover {
-        background-color: rgba(255, 255, 255, 0.3) !important;
-        border-color: #ffffff;
-    }
-    
-    /* Force the Icon to be White */
-    [data-testid="stSidebarCollapsedControl"] svg {
-        fill: white !important;
-        stroke: white !important;
     }
 
     /* 10. HIDE MENU ELEMENTS */
@@ -120,25 +92,60 @@ st.markdown("""
         display: none !important;
     }
 
-    /* 11. PERMANENT RED BORDER (Sidebar API) */
-    section[data-testid="stSidebar"] div[data-baseweb="base-input"] {
-        border: 2px solid #ff4b4b !important;
+    /* --- THE FIX: FLOATING SIDEBAR TOGGLE ARROW --- */
+    
+    /* Target the Arrow Button Container */
+    [data-testid="stSidebarCollapsedControl"] {
+        position: fixed !important; /* Detach from header */
+        top: 20px !important;       /* Pin to top */
+        left: 20px !important;      /* Pin to left */
+        z-index: 1000005 !important; /* Higher than EVERYTHING */
+        
+        display: block !important;
+        visibility: visible !important;
+        pointer-events: auto !important; /* Ensure it's clickable */
+        
+        /* Button Styling */
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 8px !important;
+        width: 44px !important;
+        height: 44px !important;
+        
+        /* Centering the icon */
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: background-color 0.3s ease;
     }
 
-    /* --- MOBILE ADJUSTMENTS --- */
+    /* Hover Effect */
+    [data-testid="stSidebarCollapsedControl"]:hover {
+        background-color: rgba(255, 255, 255, 0.25) !important;
+    }
+
+    /* Force the actual Arrow SVG to be White */
+    [data-testid="stSidebarCollapsedControl"] svg {
+        fill: white !important;
+        stroke: white !important;
+        width: 24px !important;
+        height: 24px !important;
+    }
+
+    /* --- MOBILE SPECIFIC FIXES --- */
     @media (max-width: 768px) {
-        .block-container {
-            padding-top: 5rem !important; /* Push content down so arrow fits */
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-        }
-        
-        /* Ensure the arrow is definitely visible on mobile */
+        /* Move arrow slightly to avoid screen edges on phones */
         [data-testid="stSidebarCollapsedControl"] {
             top: 15px !important;
             left: 15px !important;
-            background-color: rgba(20, 20, 20, 0.8) !important; /* Darker bg for contrast */
+            background-color: rgba(30, 30, 35, 0.8) !important; /* Darker bg for visibility */
+        }
+        
+        /* Push content down so it doesn't overlap the arrow */
+        .block-container {
+            padding-top: 5rem !important; 
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
         }
     }
 </style>
