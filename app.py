@@ -109,14 +109,45 @@ st.markdown("""
         visibility: hidden !important;
     }
     
-    /* OPTIONAL: Hides the "Hosted with Streamlit" footer if you want */
-    /* footer {visibility: hidden !important;} */
-    
     /* CRITICAL: Ensure the Sidebar Toggle (Top Left) stays visible */
     [data-testid="stSidebarCollapsedControl"] {
         visibility: visible !important;
     }
+/* --- MOBILE & TABLET COMPATIBILITY FIX --- */
     
+    @media (max-width: 768px) {
+        /* A. Reset Padding for Small Screens */
+        .block-container {
+            padding-top: 3rem !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            margin-top: 1rem !important;
+        }
+
+        /* B. Force the Sidebar Arrow (Toggle) to be Visible & White */
+        [data-testid="stSidebarCollapsedControl"] {
+            visibility: visible !important;
+            display: block !important;
+            color: #ffffff !important;
+            background-color: rgba(20, 20, 20, 0.6); /* Small bg to make it pop */
+            border-radius: 10px;
+            z-index: 1000001 !important; /* Highest priority */
+            top: 10px !important;
+            left: 10px !important;
+        }
+        
+        /* C. Ensure the Sidebar Icon (Chevron) itself is white */
+        [data-testid="stSidebarCollapsedControl"] svg {
+            fill: #ffffff !important;
+            stroke: #ffffff !important;
+        }
+        
+        /* D. Ensure Sidebar covers enough width on mobile */
+        section[data-testid="stSidebar"] {
+            width: 80% !important;
+            max-width: 300px !important;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 # --- HELPER FUNCTIONS ---
