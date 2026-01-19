@@ -223,22 +223,13 @@ def generate_notebook_content(text_content, api_key, provider, custom_instructio
                     generation_config={"response_mime_type": "application/json"}
                 )
                 return json.loads(response.text)
-            # 3. SPECIFIC ERROR CATCHING FOR GEMINI
-            except InvalidArgument:
-                st.error("🚨**Invalid API Key:** Google rejected this key. It might be malformed or from a deleted project.")
-                return None
-            except Unauthenticated:
-                st.error("🔐**Authentication Failed:** The API key is incorrect. Please copy it again from Google AI Studio.")
-                return None
-            except ResourceExhausted:
-                st.error("⏳**Rate Limit Hit:** You are sending requests too fast for the free tier.")
-                return None
-            except GoogleAPICallError as e:
-                st.error(f"**Google API Error:** {e.message}")
-                return None
             except Exception as e:
-                st.error(f"❌**Gemini Error:** {str(e)}")
-                return None
+                # Gemini specific error handling
+                if "401" in str(e) or "API_KEY_INVALID" in str(e):
+                    st.error("🚨 **Invalid API Key:** The Gemini API key you entered is incorrect. Please check your Google AI Studio dashboard.")
+                    return None
+                else:
+                    raise e # Re-raise other errors to be caught by the outer except
 
         elif provider == "OpenAI (ChatGPT)":
             client = OpenAI(api_key=api_key)
